@@ -14,7 +14,7 @@ const fetchEmails = async () => {
         'x-user-email': authStore.userEmail
       }
     });
-    
+
     if (!response.ok) {
       throw new Error('メールの取得に失敗しました');
     }
@@ -64,8 +64,8 @@ onMounted(() => {
 <template>
   <div>
     <v-alert v-if="!authStore.isAuthenticated" color="info" icon="mdi-google">
-      <template v-slot:title> Gmailとの連携が必要です </template>
-      <template v-slot:text>
+      <template #title> Gmailとの連携が必要です </template>
+      <template #text>
         <v-btn color="primary" @click="authenticate">
           Googleアカウントで認証
         </v-btn>
@@ -86,13 +86,13 @@ onMounted(() => {
           :title="email.subject"
           :subtitle="email.from"
         >
-          <template v-slot:prepend>
+          <template #prepend>
             <v-avatar color="grey-lighten-1">
               <v-icon>mdi-account</v-icon>
             </v-avatar>
           </template>
 
-          <template v-slot:append>
+          <template #append>
             <v-btn
               icon="mdi-star-outline"
               variant="text"

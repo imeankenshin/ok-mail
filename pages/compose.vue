@@ -118,7 +118,7 @@ const sendEmail = async () => {
 
     <v-snackbar v-model="showError" color="error">
       {{ errorMessage }}
-      <template v-slot:actions>
+      <template #actions>
         <v-btn color="white" variant="text" @click="showError = false">
           閉じる
         </v-btn>

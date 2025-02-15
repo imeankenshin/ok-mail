@@ -15,11 +15,11 @@ const SCOPES = [
   'https://www.googleapis.com/auth/userinfo.profile'
 ]
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES,
   })
-  
+
   return { url: authUrl }
 })
