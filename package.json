@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "@nuxt/eslint": "1.0.1",
     "@pinia/nuxt": "^0.10.1",
+    "@prisma/extension-accelerate": "^1.2.2",
     "@vueuse/nuxt": "^12.7.0",
+    "eslint": "^9.0.0",
     "googleapis": "^144.0.0",
     "nuxt": "^3.15.4",
     "vue": "latest",
@@ -22,6 +25,7 @@
   "packageManager": "pnpm@8.15.3+sha1.64838798f519c18029c1e8a1310e16101fc2eda0",
   "devDependencies": {
     "@prisma/client": "^6.3.1",
-    "prisma": "^6.3.1"
+    "prisma": "^6.3.1",
+    "typescript": "^5.7.3"
   }
 }
