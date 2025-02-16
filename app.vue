@@ -27,7 +27,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const drawer = ref(false)
+const drawer = ref(true)
 
 const refreshEmails = () => {
   // メール更新ロジックをここに実装

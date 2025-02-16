@@ -1,58 +1,87 @@
-<script setup lang="ts">
-const session = authClient.useSession();
-const { data, error, status } = useFetch("/api/emails", {
-  lazy: true,
+<script setup>
+const route = useRoute();
+const authStore = useAuthStore();
+const emails = ref([]);
+const loading = ref(false);
+
+const fetchEmails = async () => {
+  if (!authStore.userEmail) return;
+
+  loading.value = true;
+  try {
+    const response = await fetch('/api/emails', {
+      headers: {
+        'x-user-email': authStore.userEmail
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('メールの取得に失敗しました');
+    }
+
+    const data = await response.json();
+    if (data.emails) {
+      emails.value = data.emails;
+    }
+  } catch (error) {
+    console.error('メールの取得に失敗しました:', error);
+    authStore.setError('メールの取得に失敗しました');
+  } finally {
+    loading.value = false;
+  }
+};
+
+const authenticate = async () => {
+  try {
+    const response = await fetch("/api/auth");
+    const { url } = await response.json();
+    window.location.href = url;
+  } catch (error) {
+    console.error("認証に失敗しました:", error);
+    authStore.setError("認証に失敗しました");
+  }
+};
+
+const toggleStar = async (email) => {
+  // Gmail APIでスター付けを実装予定
+  email.starred = !email.starred;
+};
+
+onMounted(() => {
+  // URLパラメータから認証状態を確認
+  const auth = route.query.auth;
+  const email = route.query.email;
+
+  if (auth === "success" && email) {
+    authStore.setAuthenticated(String(email));
+    fetchEmails();
+  } else if (auth === "error") {
+    authStore.setError("認証に失敗しました");
+  }
 });
 </script>
 
 <template>
   <div>
-    <v-progress-linear
-      v-if="status === 'pending' || session.isPending"
-      indeterminate
-      class="mb-4"
-    />
-
-    <!-- if error is 401 or session does not exist -->
-    <v-alert
-      v-else-if="!session.data || error?.status === 401"
-      color="info"
-      icon="mdi-google"
-    >
+    <v-alert v-if="!authStore.isAuthenticated" color="info" icon="mdi-google">
       <template #title> Gmailとの連携が必要です </template>
       <template #text>
-        <v-btn
-          color="primary"
-          @click="
-            authClient.signIn.social({
-              provider: 'google',
-            })
-          "
-        >
+        <v-btn color="primary" @click="authenticate">
           Googleアカウントで認証
         </v-btn>
       </template>
     </v-alert>
 
-    <template v-else-if="error">
-      <v-alert color="error" icon="mdi-alert" class="mb-4">
-        {{ error.message || "メールの取得に失敗しました" }}
-      </v-alert>
-    </template>
-
-    <v-alert
-      v-else-if="!data?.emails.length"
-      color="info"
-      icon="mdi-email-outline"
-      class="mt-4"
-    >
-      メールがありません
+    <v-alert v-if="authStore.error" color="error" icon="mdi-alert">
+      {{ authStore.error }}
     </v-alert>
 
-    <template v-else-if="data?.emails.length">
+    <template v-else-if="authStore.isAuthenticated">
+      <v-progress-linear v-if="loading" indeterminate />
+
       <v-list lines="two">
         <v-list-item
-          v-for="email in data.emails"
+          v-for="email in emails"
           :key="email.id"
           :title="email.subject"
           :subtitle="email.from"
@@ -64,7 +93,11 @@ const { data, error, status } = useFetch("/api/emails", {
           </template>
 
           <template #append>
-            <v-btn icon="mdi-star-outline" variant="text" />
+            <v-btn
+              icon="mdi-star-outline"
+              variant="text"
+              @click="toggleStar(email)"
+            />
           </template>
         </v-list-item>
       </v-list>
