@@ -1,5 +1,10 @@
-<script setup>
+<script setup lang="ts">
 const { data: session, error: sessionError } = await useSession(useFetch);
+const { data: emails, status } = useFetch("/api/emails", {
+  onResponse: (response) => {
+    console.log(response);
+  },
+});
 </script>
 
 <template>
@@ -24,12 +29,12 @@ const { data: session, error: sessionError } = await useSession(useFetch);
       {{ sessionError }}
     </v-alert>
 
-    <!-- <template v-else-if="session">
-      <v-progress-linear v-if="loading" indeterminate />
+    <template v-else-if="session">
+      <v-progress-linear v-if="status === 'pending'" indeterminate />
 
       <v-list lines="two">
         <v-list-item
-          v-for="email in emails"
+          v-for="email in emails.emails"
           :key="email.id"
           :title="email.subject"
           :subtitle="email.from"
@@ -41,14 +46,10 @@ const { data: session, error: sessionError } = await useSession(useFetch);
           </template>
 
           <template #append>
-            <v-btn
-              icon="mdi-star-outline"
-              variant="text"
-              @click="toggleStar(email)"
-            />
+            <v-btn icon="mdi-star-outline" variant="text" />
           </template>
         </v-list-item>
       </v-list>
-    </template> -->
+    </template>
   </div>
 </template>

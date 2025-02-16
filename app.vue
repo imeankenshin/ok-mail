@@ -5,6 +5,7 @@
         <v-list-item to="/" title="受信トレイ" prepend-icon="mdi-email" />
         <v-list-item to="/sent" title="送信済み" prepend-icon="mdi-send" />
         <v-list-item to="/drafts" title="下書き" prepend-icon="mdi-file-document-outline" />
+        <v-list-item title="ログアウト" prepend-icon="mdi-logout" @click="signOut()" />
       </v-list>
     </v-navigation-drawer>
 
