@@ -38,6 +38,8 @@ const { data: emails, status } = useFetch("/api/emails", {
           :key="email.id"
           :title="email.subject"
           :subtitle="email.from"
+          :to="`/emails/${email.id}`"
+          link
         >
           <template #prepend>
             <v-avatar color="grey-lighten-1">
