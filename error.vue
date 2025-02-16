@@ -10,18 +10,10 @@
             <p class="text-body-1 mb-4">
               申し訳ありませんが、予期せぬエラーが発生しました。
             </p>
-            <v-btn color="primary" to="/">
-              ホームに戻る
-            </v-btn>
+            <v-btn color="primary" to="/"> ホームに戻る </v-btn>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
-
-<script setup>
-definePageMeta({
-  layout: 'error'
-});
-</script>
