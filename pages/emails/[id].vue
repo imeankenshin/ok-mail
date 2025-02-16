@@ -2,7 +2,9 @@
 const route = useRoute();
 const emailId = route.params.id as ":id";
 
-const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {});
+const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
+  lazy: true,
+});
 </script>
 
 <template>

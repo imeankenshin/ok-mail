@@ -1,9 +1,7 @@
 <script setup lang="ts">
 const { data: session, error: sessionError } = await useSession(useFetch);
-const { data: emails, status } = useFetch("/api/emails", {
-  onResponse: (response) => {
-    console.log(response);
-  },
+const { data: emails, status } = await useFetch("/api/emails", {
+  lazy: true,
 });
 </script>
 
