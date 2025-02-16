@@ -34,7 +34,7 @@ const { data: emails, status } = useFetch("/api/emails", {
 
       <v-list lines="two">
         <v-list-item
-          v-for="email in emails.emails"
+          v-for="email in emails?.emails"
           :key="email.id"
           :title="email.subject"
           :subtitle="email.from"
