@@ -3,6 +3,7 @@ import type {
   EventHandlerRequest,
   EventHandlerResponse,
   H3EventContext,
+  EventHandler,
 } from "h3";
 import { H3Event } from "h3";
 import { google } from "googleapis";
@@ -15,15 +16,14 @@ class VerifiedEvent<T extends EventHandlerRequest> extends H3Event<T> {
   };
 }
 
-type VerifiedEventHandler<
-  T extends EventHandlerRequest,
-  D extends EventHandlerResponse
-> = (event: VerifiedEvent<T>) => Promise<D> | D;
+type VerifiedEventHandler<T extends EventHandlerRequest, D> = (
+  event: VerifiedEvent<T>
+) => EventHandlerResponse<D>;
 
 export function defineVerifiedOnlyEventHandler<
   T extends EventHandlerRequest,
-  D extends EventHandlerResponse
->(handler: VerifiedEventHandler<T, D>) {
+  D
+>(handler: VerifiedEventHandler<T, D>): EventHandler<T, D> {
   return defineEventHandler<T>(async (event) => {
     const session = await auth.api.getSession({
       headers: event.headers,
@@ -62,7 +62,9 @@ export function defineVerifiedOnlyEventHandler<
         where: { id: account.id },
         data: {
           accessToken: credentials.access_token!,
-          accessTokenExpiresAt: new Date(Date.now() + (credentials.expiry_date || 0)),
+          accessTokenExpiresAt: new Date(
+            Date.now() + (credentials.expiry_date || 0)
+          ),
         },
       });
     }
