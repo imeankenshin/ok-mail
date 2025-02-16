@@ -1,16 +1,17 @@
 import { google } from 'googleapis'
 import { defineEventHandler, readBody } from 'h3'
+import { env } from '~/env'
 
 const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
+  env.GOOGLE_CLIENT_ID,
+  env.GOOGLE_CLIENT_SECRET,
+  env.GOOGLE_REDIRECT_URI
 )
 
 export default defineEventHandler(async (event) => {
   try {
     const { to, subject, body } = await readBody(event)
-    
+
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client })
     const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString('base64')}?=`
     const messageParts = [
