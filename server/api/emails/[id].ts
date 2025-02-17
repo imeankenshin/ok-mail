@@ -33,19 +33,41 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
       to: headers?.find((h) => h.name === "To")?.value || "",
       date: headers?.find((h) => h.name === "Date")?.value || "",
       body: "",
+      isHtml: false,
     };
 
     // メール本文の取得
     if (message?.payload?.parts) {
-      const textPart = message.payload.parts.find(
-        (part) =>
-          part.mimeType === "text/plain" || part.mimeType === "text/html"
+      // HTMLとプレーンテキストの両方を探す
+      const htmlPart = message.payload.parts.find(
+        (part) => part.mimeType === "text/html"
       );
-      if (textPart?.body?.data) {
-        email.body = Buffer.from(textPart.body.data, "base64").toString();
+      const plainPart = message.payload.parts.find(
+        (part) => part.mimeType === "text/plain"
+      );
+
+      if (htmlPart?.body?.data) {
+        // HTMLが利用可能な場合はそちらを優先
+        const htmlContent = Buffer.from(htmlPart.body.data, "base64").toString();
+        email.body = htmlContent;
+        email.isHtml = true;
+      } else if (plainPart?.body?.data) {
+        // プレーンテキストの場合は改行を<br>に変換
+        const plainText = Buffer.from(plainPart.body.data, "base64").toString();
+        email.body = plainText.replace(/\n/g, "<br>");
+        email.isHtml = false;
       }
     } else if (message?.payload?.body?.data) {
-      email.body = Buffer.from(message.payload.body.data, "base64").toString();
+      const content = Buffer.from(message.payload.body.data, "base64").toString();
+
+      // Content-Typeをチェックしてフォーマットを決定
+      const isHtml = message.payload.mimeType?.includes("html");
+      if (isHtml) {
+        email.body = content;
+      } else {
+        email.body = content.replace(/\n/g, "<br>");
+      }
+      email.isHtml = !!isHtml;
     }
 
     return email;

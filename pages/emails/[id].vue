@@ -28,8 +28,13 @@ const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
             </v-card-subtitle>
             <v-divider />
             <v-card-text>
-              <!-- eslint-disable-next-line vue/no-v-html -->
-              <div v-html="email.body" />
+              <div
+                :class="{
+                  'email-html-content': email.isHtml,
+                  'email-plain-content': !email.isHtml
+                }"
+                v-html="email.body"
+              />
             </v-card-text>
           </v-card>
         </template>
@@ -37,4 +42,21 @@ const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
     </v-main>
   </div>
 </template>
-]]>
+
+<style scoped>
+.email-html-content {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.email-html-content :deep(img) {
+  max-width: 100%;
+  height: auto;
+}
+
+.email-plain-content {
+  white-space: pre-wrap;
+  font-family: monospace;
+  line-height: 1.5;
+}
+</style>
