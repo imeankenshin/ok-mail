@@ -31,7 +31,7 @@ const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
               <div
                 :class="{
                   'email-html-content': email.isHtml,
-                  'email-plain-content': !email.isHtml
+                  'email-plain-content': !email.isHtml,
                 }"
                 v-html="email.body"
               />
@@ -49,14 +49,11 @@ const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
   overflow-x: auto;
 }
 
-.email-html-content :deep(img) {
-  max-width: 100%;
-  height: auto;
-}
-
 .email-plain-content {
-  white-space: pre-wrap;
-  font-family: monospace;
-  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  color: #24292e;
+  padding: 1rem;
 }
 </style>

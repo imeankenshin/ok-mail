@@ -9,7 +9,6 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     });
   }
 
-
   try {
     const gmail = google.gmail({
       version: "v1",
@@ -39,35 +38,37 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     // メール本文の取得
     if (message?.payload?.parts) {
       // HTMLとプレーンテキストの両方を探す
-      const htmlPart = message.payload.parts.find(
-        (part) => part.mimeType === "text/html"
-      );
-      const plainPart = message.payload.parts.find(
-        (part) => part.mimeType === "text/plain"
+      const parts = message.payload.parts.filter(
+        (part) => part.mimeType === "text/html" || part.mimeType === "text/plain"
       );
 
-      if (htmlPart?.body?.data) {
-        // HTMLが利用可能な場合はそちらを優先
-        const htmlContent = Buffer.from(htmlPart.body.data, "base64").toString();
-        email.body = htmlContent;
-        email.isHtml = true;
-      } else if (plainPart?.body?.data) {
-        // プレーンテキストの場合は改行を<br>に変換
-        const plainText = Buffer.from(plainPart.body.data, "base64").toString();
-        email.body = plainText.replace(/\n/g, "<br>");
-        email.isHtml = false;
+      // パートをMIMEタイプでソート（HTMLを優先）
+      parts.sort((a, b) => {
+        if (a.mimeType === "text/html") return -1;
+        if (b.mimeType === "text/html") return 1;
+        return 0;
+      });
+
+      if (parts.length > 0 && parts[0].body?.data) {
+        const content = Buffer.from(parts[0].body.data, "base64").toString();
+        email.body = content;
+        email.isHtml = parts[0].mimeType === "text/html";
       }
     } else if (message?.payload?.body?.data) {
-      const content = Buffer.from(message.payload.body.data, "base64").toString();
+      const content = Buffer.from(
+        message.payload.body.data,
+        "base64"
+      ).toString();
 
-      // Content-Typeをチェックしてフォーマットを決定
       const isHtml = message.payload.mimeType?.includes("html");
-      if (isHtml) {
-        email.body = content;
-      } else {
-        email.body = content.replace(/\n/g, "<br>");
-      }
+      email.body = content;
       email.isHtml = !!isHtml;
+    }
+
+    // メールヘッダーからContent-Typeを取得して確認
+    const contentType = headers?.find((h) => h.name === "Content-Type")?.value || "";
+    if (!email.isHtml && contentType.includes("text/html")) {
+      email.isHtml = true;
     }
 
     return email;
