@@ -15,6 +15,7 @@ const { data: emails, status } = await useFetch("/api/emails", {
           @click="
             signIn.social({
               provider: 'google',
+              callbackURL: '/'
             })
           "
         >
