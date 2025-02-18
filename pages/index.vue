@@ -1,9 +1,7 @@
 <script setup lang="ts">
 const { data: session, error: sessionError } = await useSession(useFetch);
-const { data: emails, status } = useFetch("/api/emails", {
-  onResponse: (response) => {
-    console.log(response);
-  },
+const { data: emails, status } = await useFetch("/api/emails", {
+  lazy: true,
 });
 </script>
 
@@ -38,6 +36,8 @@ const { data: emails, status } = useFetch("/api/emails", {
           :key="email.id"
           :title="email.subject"
           :subtitle="email.from"
+          :to="`/emails/${email.id}`"
+          link
         >
           <template #prepend>
             <v-avatar color="grey-lighten-1">
