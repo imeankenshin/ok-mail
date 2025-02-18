@@ -1,10 +1,19 @@
 <script setup lang="ts">
 const route = useRoute();
 const emailId = route.params.id as ":id";
+const emailFrame = ref<HTMLIFrameElement>();
 
 const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
   lazy: true,
 });
+
+const resizeIframe = () => {
+  if (emailFrame.value) {
+    emailFrame.value.style.height =
+      emailFrame.value.contentWindow?.document.documentElement.scrollHeight +
+      "px";
+  }
+};
 </script>
 
 <template>
@@ -28,13 +37,17 @@ const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
             </v-card-subtitle>
             <v-divider />
             <v-card-text>
-              <div
-                :class="{
-                  'email-html-content': email.isHtml,
-                  'email-plain-content': !email.isHtml,
-                }"
-                v-html="email.body"
-              />
+              <template v-if="email.isHtml">
+                <iframe
+                  ref="emailFrame"
+                  :srcdoc="email.body"
+                  class="email-html-content"
+                  frameborder="0"
+                  @load="resizeIframe"
+                />
+              </template>
+              <!-- eslint-disable-next-line vue/no-v-html -->
+              <div v-else class="email-plain-content" v-html="email.body" />
             </v-card-text>
           </v-card>
         </template>
@@ -45,8 +58,9 @@ const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
 
 <style scoped>
 .email-html-content {
-  max-width: 100%;
-  overflow-x: auto;
+  width: 100%;
+  border: none;
+  min-height: 100px;
 }
 
 .email-plain-content {
