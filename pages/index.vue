@@ -3,6 +3,19 @@ const { data: session, error: sessionError } = await useSession(useFetch);
 const { data: emails, status } = await useFetch("/api/emails", {
   lazy: true,
 });
+const prevEmails = usePrevious(emails);
+
+const moveToTrash = async (emailId: string) => {
+  try {
+    emails.value = {
+      emails: emails.value?.emails.filter((i) => i.id !== emailId) ?? [],
+    };
+    await $fetch(`/api/emails/${emailId}/trash`, { method: "POST" });
+  } catch (error) {
+    console.error("メールの削除に失敗しました:", error);
+    emails.value = prevEmails.value;
+  }
+};
 </script>
 
 <template>
@@ -15,7 +28,7 @@ const { data: emails, status } = await useFetch("/api/emails", {
           @click="
             signIn.social({
               provider: 'google',
-              callbackURL: '/'
+              callbackURL: '/',
             })
           "
         >
@@ -47,7 +60,15 @@ const { data: emails, status } = await useFetch("/api/emails", {
           </template>
 
           <template #append>
-            <v-btn icon="mdi-star-outline" variant="text" />
+            <div class="d-flex align-center">
+              <v-btn
+                icon="mdi-delete-outline"
+                variant="text"
+                :title="'ゴミ箱に移動'"
+                @click.prevent="moveToTrash(email.id)"
+              />
+              <v-btn icon="mdi-star-outline" variant="text" />
+            </div>
           </template>
         </v-list-item>
       </v-list>
