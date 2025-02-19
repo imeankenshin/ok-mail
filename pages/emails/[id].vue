@@ -1,19 +1,13 @@
 <script setup lang="ts">
 const route = useRoute();
 const emailId = route.params.id as ":id";
-const emailFrame = ref<HTMLIFrameElement>();
 
 const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
   lazy: true,
 });
 
-const resizeIframe = () => {
-  if (emailFrame.value) {
-    emailFrame.value.style.height =
-      emailFrame.value.contentWindow?.document.documentElement.scrollHeight +
-      "px";
-  }
-};
+const styleSheet = computed(() => email.value?.isHtml ? email.value.styleSheet : "");
+useStyleTag(styleSheet);
 </script>
 
 <template>
@@ -37,17 +31,10 @@ const resizeIframe = () => {
             </v-card-subtitle>
             <v-divider />
             <v-card-text>
-              <template v-if="email.isHtml">
-                <iframe
-                  ref="emailFrame"
-                  :srcdoc="email.body"
-                  class="email-html-content"
-                  frameborder="0"
-                  @load="resizeIframe"
-                />
-              </template>
-              <!-- eslint-disable-next-line vue/no-v-html -->
-              <div v-else class="email-plain-content" v-html="email.body" />
+              <div class="___body-wrapper">
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <div class="___body" :lang="email.isHtml ? email.lang : undefined" v-html="email.body" />
+              </div>
             </v-card-text>
           </v-card>
         </template>
@@ -57,17 +44,11 @@ const resizeIframe = () => {
 </template>
 
 <style scoped>
-.email-html-content {
-  width: 100%;
-  border: none;
-  min-height: 100px;
+.___body-wrapper {
+  display: grid;
+  place-items: center;
 }
-
-.email-plain-content {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, sans-serif;
-  line-height: 1.6;
-  color: #24292e;
-  padding: 1rem;
+.___body {
+  box-sizing: unset;
 }
 </style>
