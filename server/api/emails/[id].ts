@@ -99,6 +99,9 @@ function createGetEmailResponce(
   if (headers.find((h) => h.name === "Content-Type")?.value === "text/plain")
     return plainEmail;
   const document = new JSDOM(content).window.document;
+  document.querySelectorAll("script").forEach((scriptElement) => {
+    scriptElement.remove();
+  });
   const styleElements = document.querySelectorAll("style");
   styleElements.forEach((styleElement) => {
     if (styleElement.textContent) {
