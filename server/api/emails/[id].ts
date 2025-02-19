@@ -102,6 +102,9 @@ function createGetEmailResponce(
   document.querySelectorAll("script").forEach((scriptElement) => {
     scriptElement.remove();
   });
+  document.querySelectorAll("a").forEach((anchor) => {
+    anchor.target = "_blank";
+  });
   const styleElements = document.querySelectorAll("style");
   styleElements.forEach((styleElement) => {
     if (styleElement.textContent) {
