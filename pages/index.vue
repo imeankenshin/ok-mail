@@ -3,7 +3,7 @@ const { data: session, error: sessionError } = await useSession(useFetch);
 const { data: emails, status } = await useFetch("/api/emails", {
   lazy: true,
 });
-const prevEmails = usePrevious(emails);
+const prevEmails = usePrevious(emails, null);
 
 const moveToTrash = async (emailId: string) => {
   try {
