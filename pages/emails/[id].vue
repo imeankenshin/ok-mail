@@ -33,7 +33,7 @@ useStyleTag(styleSheet);
             <v-card-text>
               <div class="___body-wrapper">
                 <!-- eslint-disable-next-line vue/no-v-html -->
-                <div class="___body" v-html="email.body" />
+                <div class="___body" :lang="email.isHtml ? email.lang : undefined" v-html="email.body" />
               </div>
             </v-card-text>
           </v-card>
