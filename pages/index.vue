@@ -1,19 +1,82 @@
 <script setup lang="ts">
+import type { EmailListResponse } from '#shared/types/email';
+
 const { data: session, error: sessionError } = await useSession(useFetch);
-const { data: emails, status } = await useFetch("/api/emails", {
-  lazy: true,
+
+interface EmailState extends EmailListResponse {
+  initialized: boolean;
+}
+
+// グローバルステートの定義
+const emailState = useState<EmailState>('emails', () => ({
+  emails: [],
+  hasNextPage: false,
+  nextPageToken: undefined,
+  initialized: false
+}));
+
+const loading = ref(false);
+
+// 初回のメール取得
+const initializeEmails = async () => {
+  if (emailState.value.initialized) return;
+
+  loading.value = true;
+  try {
+    const response = await $fetch('/api/emails');
+    emailState.value = {
+      emails: response.emails,
+      hasNextPage: response.hasNextPage,
+      nextPageToken: response.nextPageToken,
+      initialized: true
+    };
+  } catch (error) {
+    console.error('メールの初期化に失敗しました:', error);
+  }
+  loading.value = false;
+};
+
+// 追加のメール取得
+const fetchEmails = async () => {
+  loading.value = true;
+  try {
+    const response = await $fetch(
+      `/api/emails?pageToken=${emailState.value.nextPageToken}`
+    );
+    emailState.value = {
+      emails: [...emailState.value.emails, ...response.emails],
+      hasNextPage: response.hasNextPage,
+      nextPageToken: response.nextPageToken,
+      initialized: true
+    };
+  } catch (error) {
+    console.error('追加のメール取得に失敗しました:', error);
+  }
+  loading.value = false;
+};
+
+const loadMore = () => {
+  fetchEmails();
+};
+
+// コンポーネントがマウントされたときに初期化
+onMounted(() => {
+  if (session.value && !emailState.value.initialized) {
+    initializeEmails();
+  }
 });
-const prevEmails = usePrevious(emails, null);
 
 const moveToTrash = async (emailId: string) => {
+  const previousState = { ...emailState.value };
   try {
-    emails.value = {
-      emails: emails.value?.emails.filter((i) => i.id !== emailId) ?? [],
+    emailState.value = {
+      ...emailState.value,
+      emails: emailState.value.emails.filter((i) => i.id !== emailId)
     };
     await $fetch(`/api/emails/${emailId}/trash`, { method: "POST" });
   } catch (error) {
     console.error("メールの削除に失敗しました:", error);
-    emails.value = prevEmails.value;
+    emailState.value = previousState;
   }
 };
 </script>
@@ -42,11 +105,9 @@ const moveToTrash = async (emailId: string) => {
     </v-alert>
 
     <template v-else-if="session">
-      <v-progress-linear v-if="status === 'pending'" indeterminate />
-
       <v-list lines="two">
         <v-list-item
-          v-for="email in emails?.emails"
+          v-for="email in emailState.emails"
           :key="email.id"
           :title="email.subject"
           :subtitle="email.from"
@@ -72,6 +133,18 @@ const moveToTrash = async (emailId: string) => {
           </template>
         </v-list-item>
       </v-list>
+
+      <!-- 追加のメールを読み込み中の表示 -->
+      <v-skeleton-loader v-if="loading" type="list-item@10" class="mt-4" />
+      <v-btn
+        v-if="!loading && emailState.hasNextPage"
+        block
+        color="primary"
+        class="mt-4"
+        @click="loadMore"
+      >
+        もっと見る
+      </v-btn>
     </template>
   </div>
 </template>
