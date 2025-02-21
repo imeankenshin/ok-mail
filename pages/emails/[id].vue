@@ -48,7 +48,7 @@ useStyleTag(styleSheet);
   display: grid;
   place-items: center;
 }
-.___body {
-  box-sizing: unset;
+.___body * {
+  all: revert-layer;
 }
 </style>

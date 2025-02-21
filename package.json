@@ -12,6 +12,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@adobe/css-tools": "^4.4.2",
     "@mdi/font": "^7.4.47",
     "@nuxt/eslint": "1.0.1",
     "@pinia/nuxt": "^0.10.1",
