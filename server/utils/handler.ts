@@ -75,14 +75,16 @@ export function defineVerifiedOnlyEventHandler<
       refresh_token: account.refreshToken,
     });
 
-    const passedEvent = {
-      ...event,
-      context: {
-        ...event.context,
-        session,
-        oAuth2Client: oauth2Client,
-      },
-    } as VerifiedEvent<T>;
-    return handler(passedEvent);
+    return handler(createVerifiedEvent(event, oauth2Client, session));
   });
+}
+
+function createVerifiedEvent<T extends EventHandlerRequest>(
+  event: H3Event<T>,
+  oauth2Client: OAuth2Client,
+  session: Awaited<ReturnType<typeof auth.api.getSession>>
+): VerifiedEvent<T> {
+  event.context.oAuth2Client = oauth2Client;
+  event.context.session = session;
+  return event as VerifiedEvent<T>;
 }
