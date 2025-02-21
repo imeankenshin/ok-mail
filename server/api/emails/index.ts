@@ -1,14 +1,17 @@
 import { google } from "googleapis";
-import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
 
 export default defineVerifiedOnlyEventHandler(async (event) => {
+  const query = getQuery(event);
+  const limit = 10; // Number of emails per page
+
   const gmail = google.gmail({
     version: "v1",
     auth: event.context.oAuth2Client,
   });
   const response = await gmail.users.messages.list({
     userId: "me",
-    maxResults: 10,
+    maxResults: limit,
+    pageToken: query.pageToken as string,
   });
 
   const messages = response.data.messages || [];
@@ -38,5 +41,12 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     )
   ).filter((email) => email !== null);
 
-  return { emails };
+  const nextPageToken = response.data.nextPageToken;
+  const hasNextPage = nextPageToken !== undefined;
+
+  return {
+    emails,
+    hasNextPage,
+    nextPageToken,
+  };
 });
