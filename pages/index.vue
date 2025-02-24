@@ -113,9 +113,10 @@ const moveToTrash = async (emailId: string) => {
           :subtitle="email.from"
           :to="`/emails/${email.id}`"
           link
+          :class="{ 'grey lighten-3': email.isRead }"
         >
           <template #prepend>
-            <v-avatar color="grey-lighten-1">
+            <v-avatar :color="email.isRead ? 'grey-lighten-1' : 'primary'">
               <v-icon>mdi-account</v-icon>
             </v-avatar>
           </template>
