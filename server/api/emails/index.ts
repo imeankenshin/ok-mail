@@ -27,7 +27,7 @@ export default defineVerifiedOnlyEventHandler<
           userId: "me",
           id: message.id as string,
           format: "metadata",
-          metadataHeaders: ["From", "Subject", "Date"],
+          metadataHeaders: ["From", "Subject", "Date", "LabelIds"],
         });
 
         if (!email.data.id) {
@@ -38,6 +38,7 @@ export default defineVerifiedOnlyEventHandler<
         const subject = headers?.find((h) => h.name === "Subject")?.value;
         const from = headers?.find((h) => h.name === "From")?.value;
         const date = headers?.find((h) => h.name === "Date")?.value;
+        const isRead = !headers?.find((h) => h.name === "LabelIds")?.value?.includes("UNREAD");
 
         const emailData: Email = {
           id: email.data.id,
@@ -46,6 +47,7 @@ export default defineVerifiedOnlyEventHandler<
           from: from || "不明",
           snippet: email.data.snippet || "",
           date: date || "",
+          isRead,
         };
 
         return emailData;

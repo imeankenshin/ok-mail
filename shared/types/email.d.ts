@@ -5,6 +5,7 @@ export interface Email {
   subject: string;
   snippet: string;
   date: string;
+  isRead: boolean;
 }
 
 export interface EmailListResponse {

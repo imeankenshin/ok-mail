@@ -6,8 +6,18 @@ const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
   lazy: true,
 });
 
-const styleSheet = computed(() => email.value?.isHtml ? email.value.styleSheet : "");
+const styleSheet = computed(() =>
+  email.value?.isHtml ? email.value.styleSheet : ""
+);
 useStyleTag(styleSheet);
+
+onMounted(() => {
+  setTimeout(async () => {
+    await $fetch(`/api/emails/${emailId}/mark-as-read`, {
+      method: "POST",
+    });
+  }, 3000);
+});
 </script>
 
 <template>
@@ -33,7 +43,11 @@ useStyleTag(styleSheet);
             <v-card-text>
               <div class="___body-wrapper">
                 <!-- eslint-disable-next-line vue/no-v-html -->
-                <div class="___body" :lang="email.isHtml ? email.lang : undefined" v-html="email.body" />
+                <div
+                  class="___body"
+                  :lang="email.isHtml ? email.lang : undefined"
+                  v-html="email.body"
+                />
               </div>
             </v-card-text>
           </v-card>
