@@ -2,15 +2,19 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
-  modules: ["@pinia/nuxt", "@vueuse/nuxt", "@nuxt/eslint"],
+  modules: [
+    "@pinia/nuxt",
+    "@vueuse/nuxt",
+    "@nuxt/eslint",
+    "@nuxtjs/tailwindcss",
+    "shadcn-nuxt",
+  ],
   eslint: {},
-  css: ["vuetify/styles", "@mdi/font/css/materialdesignicons.css"],
-  build: {
-    transpile: ["vuetify"],
-  },
-  vite: {
-    ssr: {
-      noExternal: ["vuetify"],
+  css: ["@/assets/css/tailwind.css"],
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {},
     },
   },
 });

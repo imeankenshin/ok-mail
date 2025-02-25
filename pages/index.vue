@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Mail, User, Trash2, Star } from 'lucide-vue-next'
 import type { EmailListResponse } from '#shared/types/email';
 
 const { data: session, error: sessionError } = await useSession(useFetch);
@@ -82,70 +83,83 @@ const moveToTrash = async (emailId: string) => {
 </script>
 
 <template>
-  <div>
-    <v-alert v-if="!session" color="info" icon="mdi-google">
-      <template #title> Gmailとの連携が必要です </template>
-      <template #text>
-        <v-btn
-          color="primary"
-          @click="
-            signIn.social({
-              provider: 'google',
-              callbackURL: '/',
-            })
-          "
-        >
-          Googleアカウントで認証
-        </v-btn>
-      </template>
-    </v-alert>
+  <div class="space-y-4">
+    <Alert v-if="!session" variant="info" class="flex items-center justify-between">
+      <div>
+        <AlertTitle>Gmailとの連携が必要です</AlertTitle>
+        <AlertDescription>
+          <Button
+            variant="default"
+            class="mt-2"
+            @click="
+              signIn.social({
+                provider: 'google',
+                callbackURL: '/',
+              })
+            "
+          >
+            <Mail class="mr-2 h-4 w-4" />
+            Googleアカウントで認証
+          </Button>
+        </AlertDescription>
+      </div>
+    </Alert>
 
-    <v-alert v-if="sessionError" color="error" icon="mdi-alert">
-      {{ sessionError }}
-    </v-alert>
+    <Alert v-if="sessionError" variant="destructive">
+      <AlertTitle>エラー</AlertTitle>
+      <AlertDescription>{{ sessionError }}</AlertDescription>
+    </Alert>
 
-    <template v-else-if="session">
-      <v-list lines="two">
-        <v-list-item
-          v-for="email in emailState.emails"
-          :key="email.id"
-          :title="email.subject"
-          :subtitle="email.from"
-          :to="`/emails/${email.id}`"
-          link
-          :class="{ 'grey lighten-3': email.isRead }"
-        >
-          <template #prepend>
-            <v-avatar :color="email.isRead ? 'grey-lighten-1' : 'primary'">
-              <v-icon>mdi-account</v-icon>
-            </v-avatar>
-          </template>
+    <div v-else-if="session" class="space-y-4">
+      <div class="rounded-lg border bg-card">
+        <div v-for="email in emailState.emails" :key="email.id" class="border-b last:border-0">
+          <NuxtLink
+            :to="`/emails/${email.id}`"
+            class="block p-4 hover:bg-accent transition-colors"
+            :class="{ 'bg-muted': email.isRead }"
+          >
+            <div class="flex items-center space-x-4">
+              <Avatar :class="email.isRead ? 'bg-muted-foreground' : 'bg-primary'">
+                <AvatarFallback>
+                  <User class="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
 
-          <template #append>
-            <div class="d-flex align-center">
-              <v-btn
-                icon="mdi-delete-outline"
-                variant="text"
-                :title="'ゴミ箱に移動'"
-                @click.prevent="moveToTrash(email.id)"
-              />
-              <v-btn icon="mdi-star-outline" variant="text" />
+              <div class="flex-1 space-y-1">
+                <p class="font-medium leading-none">{{ email.subject }}</p>
+                <p class="text-sm text-muted-foreground">{{ email.from }}</p>
+              </div>
+
+              <div class="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  :title="'ゴミ箱に移動'"
+                  @click.prevent="moveToTrash(email.id)"
+                >
+                  <Trash2 class="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <Star class="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </template>
-        </v-list-item>
-      </v-list>
+          </NuxtLink>
+        </div>
+      </div>
 
-      <!-- 追加のメールを読み込み中の表示 -->
-      <v-skeleton-loader v-if="loading" type="list-item@10" class="mt-4" />
-      <v-btn
+      <div v-if="loading" class="space-y-3">
+        <Skeleton v-for="i in 3" :key="i" class="h-[72px] w-full" />
+      </div>
+
+      <Button
         v-if="!loading && emailState.hasNextPage"
-        block
-        color="primary"
-        class="mt-4"
+        variant="outline"
+        class="w-full"
         @click="loadMore"
       >
         もっと見る
-      </v-btn>
-    </template>
+      </Button>
+    </div>
   </div>
 </template>

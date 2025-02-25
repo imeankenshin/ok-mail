@@ -42,7 +42,6 @@ onMounted(() => {
             <v-divider />
             <v-card-text>
               <div class="___body-wrapper">
-                <!-- eslint-disable-next-line vue/no-v-html -->
                 <div
                   class="___body"
                   :lang="email.isHtml ? email.lang : undefined"
