@@ -83,7 +83,7 @@ const moveToTrash = async (emailId: string) => {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div>
     <UiAlert v-if="!session">
       <Lock class="size-4" />
       <UiAlertTitle>Gmailとの連携が必要です</UiAlertTitle>
@@ -110,7 +110,7 @@ const moveToTrash = async (emailId: string) => {
     </UiAlert>
 
     <div v-else-if="session" class="space-y-4">
-      <div>
+      <div v-if="emailState.emails.length">
         <div
           v-for="email in emailState.emails"
           :key="email.id"
@@ -149,8 +149,16 @@ const moveToTrash = async (emailId: string) => {
         </div>
       </div>
 
-      <div v-if="loading" class="space-y-2">
-        <UiSkeleton v-for="i in 10" :key="i" class="h-16 w-full" />
+      <div v-if="loading">
+        <div v-for="i in 10" :key="i" class="block p-4">
+          <div class="flex items-center space-x-4">
+            <UiSkeleton class="size-8 rounded-full" />
+            <div class="flex-1">
+              <UiSkeleton class="h-4 w-full max-w-sm" />
+              <UiSkeleton class="h-5 mt-1 w-full max-w-64" />
+            </div>
+          </div>
+        </div>
       </div>
 
       <UiButton
