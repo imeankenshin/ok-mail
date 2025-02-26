@@ -11,10 +11,4 @@ export default defineNuxtConfig({
   ],
   eslint: {},
   css: ["@/assets/css/tailwind.css"],
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  },
 });
