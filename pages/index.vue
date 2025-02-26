@@ -122,13 +122,13 @@ const moveToTrash = async (emailId: string) => {
             :class="{ 'bg-muted': email.isRead }"
           >
             <div class="flex items-center space-x-4">
-              <Avatar
+              <UiAvatar
                 :class="email.isRead ? 'bg-muted-foreground' : 'bg-primary'"
               >
-                <AvatarFallback>
+                <UiAvatarFallback>
                   <User class="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
+                </UiAvatarFallback>
+              </UiAvatar>
 
               <div class="flex-1 space-y-1">
                 <p class="font-medium leading-none">{{ email.subject }}</p>
@@ -136,35 +136,35 @@ const moveToTrash = async (emailId: string) => {
               </div>
 
               <div class="flex items-center space-x-2">
-                <Button
+                <UiButton
                   variant="ghost"
                   size="icon"
                   :title="'ゴミ箱に移動'"
                   @click.prevent="moveToTrash(email.id)"
                 >
                   <Trash2 class="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon">
+                </UiButton>
+                <UiButton variant="ghost" size="icon">
                   <Star class="h-4 w-4" />
-                </Button>
+                </UiButton>
               </div>
             </div>
           </NuxtLink>
         </div>
       </div>
 
-      <div v-if="loading" class="space-y-3">
-        <Skeleton v-for="i in 3" :key="i" class="h-[72px] w-full" />
+      <div v-if="loading" class="space-y-2">
+        <UiSkeleton v-for="i in 10" :key="i" class="h-16 w-full" />
       </div>
 
-      <Button
+      <UiButton
         v-if="!loading && emailState.hasNextPage"
         variant="outline"
         class="w-full"
         @click="loadMore"
       >
         もっと見る
-      </Button>
+      </UiButton>
     </div>
   </div>
 </template>
