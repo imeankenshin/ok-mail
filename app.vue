@@ -1,6 +1,6 @@
 <template>
   <UiSidebarProvider>
-    <UiSidebar>
+    <UiSidebar collapsible="icon">
       <UiSidebarHeader />
       <UiSidebarContent>
         <UiSidebarGroup>
@@ -40,6 +40,7 @@
           </UiSidebarGroupContent>
         </UiSidebarGroup>
       </UiSidebarContent>
+      <UiSidebarRail />
     </UiSidebar>
     <div class="min-h-screen bg-background w-full">
       <header class="border-b sticky inset-0 bg-background">
