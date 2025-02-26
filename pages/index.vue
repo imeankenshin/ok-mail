@@ -110,7 +110,7 @@ const moveToTrash = async (emailId: string) => {
     </UiAlert>
 
     <div v-else-if="session" class="space-y-4">
-      <div class="rounded-lg border bg-card">
+      <div>
         <div
           v-for="email in emailState.emails"
           :key="email.id"
@@ -122,19 +122,15 @@ const moveToTrash = async (emailId: string) => {
             :class="{ 'bg-muted': email.isRead }"
           >
             <div class="flex items-center space-x-4">
-              <UiAvatar
-                :class="email.isRead ? 'bg-muted-foreground' : 'bg-primary'"
-              >
+              <UiAvatar>
                 <UiAvatarFallback>
                   <User class="h-4 w-4" />
                 </UiAvatarFallback>
               </UiAvatar>
-
               <div class="flex-1 space-y-1">
                 <p class="font-medium leading-none">{{ email.subject }}</p>
                 <p class="text-sm text-muted-foreground">{{ email.from }}</p>
               </div>
-
               <div class="flex items-center space-x-2">
                 <UiButton
                   variant="ghost"
