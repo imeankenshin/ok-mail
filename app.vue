@@ -7,7 +7,7 @@
           <UiSidebarGroupContent>
             <UiSidebarMenu>
               <UiSidebarMenuItem>
-                <UiSidebarMenuButton as-child>
+                <UiSidebarMenuButton tooltip="受信トレイ" as-child>
                   <NuxtLink to="/">
                     <Mail class="mr-2 h-4 w-4" />
                     受信トレイ
@@ -15,7 +15,7 @@
                 </UiSidebarMenuButton>
               </UiSidebarMenuItem>
               <UiSidebarMenuItem>
-                <UiSidebarMenuButton as-child>
+                <UiSidebarMenuButton tooltip="送信済み" as-child>
                   <NuxtLink to="/sent">
                     <Send class="mr-2 h-4 w-4" />
                     送信済み
@@ -23,7 +23,7 @@
                 </UiSidebarMenuButton>
               </UiSidebarMenuItem>
               <UiSidebarMenuItem>
-                <UiSidebarMenuButton as-child>
+                <UiSidebarMenuButton tooltip="下書き" as-child>
                   <NuxtLink to="/drafts">
                     <FileText class="mr-2 h-4 w-4" />
                     下書き
@@ -31,7 +31,7 @@
                 </UiSidebarMenuButton>
               </UiSidebarMenuItem>
               <UiSidebarMenuItem>
-                <UiSidebarMenuButton @click="signOut()">
+                <UiSidebarMenuButton tooltip="ログアウト" @click="signOut()">
                   <LogOut class="mr-2 h-4 w-4" />
                   ログアウト
                 </UiSidebarMenuButton>
