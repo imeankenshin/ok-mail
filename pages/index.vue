@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Mail, User, Trash2, Star } from 'lucide-vue-next'
-import type { EmailListResponse } from '#shared/types/email';
+import { Mail, User, Trash2, Star, Lock } from "lucide-vue-next";
+import type { EmailListResponse } from "#shared/types/email";
 
 const { data: session, error: sessionError } = await useSession(useFetch);
 
@@ -9,11 +9,11 @@ interface EmailState extends EmailListResponse {
 }
 
 // グローバルステートの定義
-const emailState = useState<EmailState>('emails', () => ({
+const emailState = useState<EmailState>("emails", () => ({
   emails: [],
   hasNextPage: false,
   nextPageToken: undefined,
-  initialized: false
+  initialized: false,
 }));
 
 const loading = ref(false);
@@ -24,15 +24,15 @@ const initializeEmails = async () => {
 
   loading.value = true;
   try {
-    const response = await $fetch('/api/emails');
+    const response = await $fetch("/api/emails");
     emailState.value = {
       emails: response.emails,
       hasNextPage: response.hasNextPage,
       nextPageToken: response.nextPageToken,
-      initialized: true
+      initialized: true,
     };
   } catch (error) {
-    console.error('メールの初期化に失敗しました:', error);
+    console.error("メールの初期化に失敗しました:", error);
   }
   loading.value = false;
 };
@@ -48,10 +48,10 @@ const fetchEmails = async () => {
       emails: [...emailState.value.emails, ...response.emails],
       hasNextPage: response.hasNextPage,
       nextPageToken: response.nextPageToken,
-      initialized: true
+      initialized: true,
     };
   } catch (error) {
-    console.error('追加のメール取得に失敗しました:', error);
+    console.error("追加のメール取得に失敗しました:", error);
   }
   loading.value = false;
 };
@@ -72,7 +72,7 @@ const moveToTrash = async (emailId: string) => {
   try {
     emailState.value = {
       ...emailState.value,
-      emails: emailState.value.emails.filter((i) => i.id !== emailId)
+      emails: emailState.value.emails.filter((i) => i.id !== emailId),
     };
     await $fetch(`/api/emails/${emailId}/trash`, { method: "POST" });
   } catch (error) {
@@ -84,42 +84,47 @@ const moveToTrash = async (emailId: string) => {
 
 <template>
   <div class="space-y-4">
-    <Alert v-if="!session" variant="info" class="flex items-center justify-between">
-      <div>
-        <AlertTitle>Gmailとの連携が必要です</AlertTitle>
-        <AlertDescription>
-          <Button
-            variant="default"
-            class="mt-2"
-            @click="
-              signIn.social({
-                provider: 'google',
-                callbackURL: '/',
-              })
-            "
-          >
-            <Mail class="mr-2 h-4 w-4" />
-            Googleアカウントで認証
-          </Button>
-        </AlertDescription>
-      </div>
-    </Alert>
+    <UiAlert v-if="!session">
+      <Lock class="size-4" />
+      <UiAlertTitle>Gmailとの連携が必要です</UiAlertTitle>
+      <UiAlertDescription>
+        Gmailとの連携を行うには、Googleアカウントで認証を行なってください。
+        <UiButton
+          variant="default"
+          @click="
+            signIn.social({
+              provider: 'google',
+              callbackURL: '/',
+            })
+          "
+        >
+          <Mail class="mr-2 h-4 w-4" />
+          Googleアカウントで認証
+        </UiButton>
+      </UiAlertDescription>
+    </UiAlert>
 
-    <Alert v-if="sessionError" variant="destructive">
-      <AlertTitle>エラー</AlertTitle>
-      <AlertDescription>{{ sessionError }}</AlertDescription>
-    </Alert>
+    <UiAlert v-if="sessionError" variant="destructive">
+      <UiAlertTitle>エラー</UiAlertTitle>
+      <UiAlertDescription>{{ sessionError }}</UiAlertDescription>
+    </UiAlert>
 
     <div v-else-if="session" class="space-y-4">
       <div class="rounded-lg border bg-card">
-        <div v-for="email in emailState.emails" :key="email.id" class="border-b last:border-0">
+        <div
+          v-for="email in emailState.emails"
+          :key="email.id"
+          class="border-b last:border-0"
+        >
           <NuxtLink
             :to="`/emails/${email.id}`"
             class="block p-4 hover:bg-accent transition-colors"
             :class="{ 'bg-muted': email.isRead }"
           >
             <div class="flex items-center space-x-4">
-              <Avatar :class="email.isRead ? 'bg-muted-foreground' : 'bg-primary'">
+              <Avatar
+                :class="email.isRead ? 'bg-muted-foreground' : 'bg-primary'"
+              >
                 <AvatarFallback>
                   <User class="h-4 w-4" />
                 </AvatarFallback>
