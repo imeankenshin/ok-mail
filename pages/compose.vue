@@ -1,5 +1,5 @@
 <script setup>
-import { Loader2, X } from 'lucide-vue-next'
+import { Loader2 } from 'lucide-vue-next'
 
 const router = useRouter();
 const sending = ref(false);
@@ -81,15 +81,15 @@ const sendEmail = async () => {
 </script>
 
 <template>
-  <Card class="w-full max-w-2xl mx-auto">
-    <CardHeader>
-      <CardTitle>新規メール作成</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <form @submit.prevent="sendEmail" class="space-y-4">
+  <UiCard class="w-full max-w-2xl mx-auto">
+    <UiCardHeader>
+      <UiCardTitle>新規メール作成</UiCardTitle>
+    </UiCardHeader>
+    <UiCardContent>
+      <form class="space-y-4" @submit.prevent="sendEmail">
         <div class="space-y-2">
           <label for="to" class="text-sm font-medium">宛先</label>
-          <Input
+          <UiInput
             id="to"
             v-model="email.to"
             type="email"
@@ -103,7 +103,7 @@ const sendEmail = async () => {
 
         <div class="space-y-2">
           <label for="subject" class="text-sm font-medium">件名</label>
-          <Input
+          <UiInput
             id="subject"
             v-model="email.subject"
             type="text"
@@ -117,7 +117,7 @@ const sendEmail = async () => {
 
         <div class="space-y-2">
           <label for="body" class="text-sm font-medium">本文</label>
-          <Textarea
+          <UiTextarea
             id="body"
             v-model="email.body"
             placeholder="本文を入力"
@@ -130,7 +130,7 @@ const sendEmail = async () => {
         </div>
 
         <div class="flex justify-end">
-          <Button
+          <UiButton
             type="submit"
             :disabled="!isValid || sending"
             class="w-24"
@@ -142,26 +142,9 @@ const sendEmail = async () => {
             <template v-else>
               送信
             </template>
-          </Button>
+          </UiButton>
         </div>
       </form>
-    </CardContent>
-  </Card>
-
-  <Alert
-    v-if="showError"
-    variant="destructive"
-    class="fixed bottom-4 right-4 w-96"
-  >
-    <AlertTitle>エラー</AlertTitle>
-    <AlertDescription>{{ errorMessage }}</AlertDescription>
-    <Button
-      variant="outline"
-      size="sm"
-      class="absolute top-4 right-4"
-      @click="showError = false"
-    >
-      <X class="h-4 w-4" />
-    </Button>
-  </Alert>
+    </UiCardContent>
+  </UiCard>
 </template>
