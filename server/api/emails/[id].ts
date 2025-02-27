@@ -105,12 +105,10 @@ function createGetEmailResponce(
   document.querySelectorAll("a").forEach((anchor) => {
     anchor.target = "_blank";
   });
-  console.log("content: ",content);
   const styleSheetEls = Array.from(document.querySelectorAll("style"));
   const styleSheet = styleSheetEls
     .map((styleElement) => styleElement.textContent)
     .join("\n");
-  styleSheetEls.forEach((styleElement) => console.log(styleElement.children));
   const parsedStyleSheet = parse(styleSheet);
   transfrom(parsedStyleSheet.stylesheet);
 
