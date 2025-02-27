@@ -60,7 +60,7 @@
         </div>
       </header>
 
-      <main class="container py-4">
+      <main>
         <NuxtPage />
       </main>
     </div>
