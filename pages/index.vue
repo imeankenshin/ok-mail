@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { EmailListResponse } from '#shared/types/email';
+import { Mail, User, Trash2, Star, Lock } from "lucide-vue-next";
+import type { EmailListResponse } from "#shared/types/email";
 
 const { data: session, error: sessionError } = await useSession(useFetch);
 
@@ -8,11 +9,11 @@ interface EmailState extends EmailListResponse {
 }
 
 // グローバルステートの定義
-const emailState = useState<EmailState>('emails', () => ({
+const emailState = useState<EmailState>("emails", () => ({
   emails: [],
   hasNextPage: false,
   nextPageToken: undefined,
-  initialized: false
+  initialized: false,
 }));
 
 const loading = ref(false);
@@ -23,15 +24,15 @@ const initializeEmails = async () => {
 
   loading.value = true;
   try {
-    const response = await $fetch('/api/emails');
+    const response = await $fetch("/api/emails");
     emailState.value = {
       emails: response.emails,
       hasNextPage: response.hasNextPage,
       nextPageToken: response.nextPageToken,
-      initialized: true
+      initialized: true,
     };
   } catch (error) {
-    console.error('メールの初期化に失敗しました:', error);
+    console.error("メールの初期化に失敗しました:", error);
   }
   loading.value = false;
 };
@@ -47,10 +48,10 @@ const fetchEmails = async () => {
       emails: [...emailState.value.emails, ...response.emails],
       hasNextPage: response.hasNextPage,
       nextPageToken: response.nextPageToken,
-      initialized: true
+      initialized: true,
     };
   } catch (error) {
-    console.error('追加のメール取得に失敗しました:', error);
+    console.error("追加のメール取得に失敗しました:", error);
   }
   loading.value = false;
 };
@@ -71,7 +72,7 @@ const moveToTrash = async (emailId: string) => {
   try {
     emailState.value = {
       ...emailState.value,
-      emails: emailState.value.emails.filter((i) => i.id !== emailId)
+      emails: emailState.value.emails.filter((i) => i.id !== emailId),
     };
     await $fetch(`/api/emails/${emailId}/trash`, { method: "POST" });
   } catch (error) {
@@ -83,11 +84,13 @@ const moveToTrash = async (emailId: string) => {
 
 <template>
   <div>
-    <v-alert v-if="!session" color="info" icon="mdi-google">
-      <template #title> Gmailとの連携が必要です </template>
-      <template #text>
-        <v-btn
-          color="primary"
+    <UiAlert v-if="!session">
+      <Lock class="size-4" />
+      <UiAlertTitle>Gmailとの連携が必要です</UiAlertTitle>
+      <UiAlertDescription>
+        Gmailとの連携を行うには、Googleアカウントで認証を行なってください。
+        <UiButton
+          variant="default"
           @click="
             signIn.social({
               provider: 'google',
@@ -95,57 +98,77 @@ const moveToTrash = async (emailId: string) => {
             })
           "
         >
+          <Mail class="mr-2 h-4 w-4" />
           Googleアカウントで認証
-        </v-btn>
-      </template>
-    </v-alert>
+        </UiButton>
+      </UiAlertDescription>
+    </UiAlert>
 
-    <v-alert v-if="sessionError" color="error" icon="mdi-alert">
-      {{ sessionError }}
-    </v-alert>
+    <UiAlert v-if="sessionError" variant="destructive">
+      <UiAlertTitle>エラー</UiAlertTitle>
+      <UiAlertDescription>{{ sessionError }}</UiAlertDescription>
+    </UiAlert>
 
-    <template v-else-if="session">
-      <v-list lines="two">
-        <v-list-item
+    <div v-else-if="session">
+      <div v-if="emailState.emails.length">
+        <div
           v-for="email in emailState.emails"
           :key="email.id"
-          :title="email.subject"
-          :subtitle="email.from"
-          :to="`/emails/${email.id}`"
-          link
-          :class="{ 'grey lighten-3': email.isRead }"
+          class="border-b last:border-0"
         >
-          <template #prepend>
-            <v-avatar :color="email.isRead ? 'grey-lighten-1' : 'primary'">
-              <v-icon>mdi-account</v-icon>
-            </v-avatar>
-          </template>
-
-          <template #append>
-            <div class="d-flex align-center">
-              <v-btn
-                icon="mdi-delete-outline"
-                variant="text"
-                :title="'ゴミ箱に移動'"
-                @click.prevent="moveToTrash(email.id)"
-              />
-              <v-btn icon="mdi-star-outline" variant="text" />
+          <NuxtLink
+            :to="`/emails/${email.id}`"
+            class="block p-4 hover:bg-accent transition-colors"
+            :class="{ 'bg-muted': email.isRead }"
+          >
+            <div class="flex items-center space-x-4">
+              <UiAvatar>
+                <UiAvatarFallback>
+                  <User class="h-4 w-4" />
+                </UiAvatarFallback>
+              </UiAvatar>
+              <div class="flex-1 space-y-1">
+                <p class="font-medium leading-none">{{ email.subject }}</p>
+                <p class="text-sm text-muted-foreground">{{ email.from }}</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <UiButton
+                  variant="ghost"
+                  size="icon"
+                  :title="'ゴミ箱に移動'"
+                  @click.prevent="moveToTrash(email.id)"
+                >
+                  <Trash2 class="h-4 w-4" />
+                </UiButton>
+                <UiButton variant="ghost" size="icon">
+                  <Star class="h-4 w-4" />
+                </UiButton>
+              </div>
             </div>
-          </template>
-        </v-list-item>
-      </v-list>
+          </NuxtLink>
+        </div>
+      </div>
 
-      <!-- 追加のメールを読み込み中の表示 -->
-      <v-skeleton-loader v-if="loading" type="list-item@10" class="mt-4" />
-      <v-btn
+      <div v-if="loading">
+        <div v-for="i in 10" :key="i" class="block p-4">
+          <div class="flex items-center space-x-4">
+            <UiSkeleton class="size-10 rounded-full" />
+            <div class="flex-1">
+              <UiSkeleton class="h-4 w-full max-w-sm" />
+              <UiSkeleton class="h-5 mt-1 w-full max-w-64" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <UiButton
         v-if="!loading && emailState.hasNextPage"
-        block
-        color="primary"
-        class="mt-4"
+        variant="outline"
+        class="w-full"
         @click="loadMore"
       >
         もっと見る
-      </v-btn>
-    </template>
+      </UiButton>
+    </div>
   </div>
 </template>

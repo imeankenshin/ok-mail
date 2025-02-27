@@ -1,4 +1,6 @@
 <script setup>
+import { Loader2 } from 'lucide-vue-next'
+
 const router = useRouter();
 const sending = ref(false);
 const showError = ref(false);
@@ -79,50 +81,70 @@ const sendEmail = async () => {
 </script>
 
 <template>
-  <v-card>
-    <v-card-title>新規メール作成</v-card-title>
-    <v-card-text>
-      <v-form @submit.prevent="sendEmail">
-        <v-text-field
-          v-model="email.to"
-          label="宛先"
-          required
-          :error-messages="errors.to"
-        />
-        <v-text-field
-          v-model="email.subject"
-          label="件名"
-          required
-          :error-messages="errors.subject"
-        />
-        <v-textarea
-          v-model="email.body"
-          label="本文"
-          required
-          rows="10"
-          :error-messages="errors.body"
-        />
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            type="submit"
-            :loading="sending"
-            :disabled="!isValid"
-          >
-            送信
-          </v-btn>
-        </v-card-actions>
-      </v-form>
-    </v-card-text>
+  <UiCard class="w-full max-w-2xl mx-auto">
+    <UiCardHeader>
+      <UiCardTitle>新規メール作成</UiCardTitle>
+    </UiCardHeader>
+    <UiCardContent>
+      <form class="space-y-4" @submit.prevent="sendEmail">
+        <div class="space-y-2">
+          <label for="to" class="text-sm font-medium">宛先</label>
+          <UiInput
+            id="to"
+            v-model="email.to"
+            type="email"
+            placeholder="example@example.com"
+            :class="{ 'border-destructive': errors.to.length > 0 }"
+          />
+          <p v-if="errors.to.length > 0" class="text-sm text-destructive">
+            {{ errors.to[0] }}
+          </p>
+        </div>
 
-    <v-snackbar v-model="showError" color="error">
-      {{ errorMessage }}
-      <template #actions>
-        <v-btn color="white" variant="text" @click="showError = false">
-          閉じる
-        </v-btn>
-      </template>
-    </v-snackbar>
-  </v-card>
+        <div class="space-y-2">
+          <label for="subject" class="text-sm font-medium">件名</label>
+          <UiInput
+            id="subject"
+            v-model="email.subject"
+            type="text"
+            placeholder="件名を入力"
+            :class="{ 'border-destructive': errors.subject.length > 0 }"
+          />
+          <p v-if="errors.subject.length > 0" class="text-sm text-destructive">
+            {{ errors.subject[0] }}
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <label for="body" class="text-sm font-medium">本文</label>
+          <UiTextarea
+            id="body"
+            v-model="email.body"
+            placeholder="本文を入力"
+            rows="10"
+            :class="{ 'border-destructive': errors.body.length > 0 }"
+          />
+          <p v-if="errors.body.length > 0" class="text-sm text-destructive">
+            {{ errors.body[0] }}
+          </p>
+        </div>
+
+        <div class="flex justify-end">
+          <UiButton
+            type="submit"
+            :disabled="!isValid || sending"
+            class="w-24"
+          >
+            <template v-if="sending">
+              <Loader2 class="mr-2 h-4 w-4 animate-spin" />
+              送信中
+            </template>
+            <template v-else>
+              送信
+            </template>
+          </UiButton>
+        </div>
+      </form>
+    </UiCardContent>
+  </UiCard>
 </template>
