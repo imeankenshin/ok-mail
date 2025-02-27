@@ -109,7 +109,7 @@ const moveToTrash = async (emailId: string) => {
       <UiAlertDescription>{{ sessionError }}</UiAlertDescription>
     </UiAlert>
 
-    <div v-else-if="session" class="space-y-4">
+    <div v-else-if="session">
       <div v-if="emailState.emails.length">
         <div
           v-for="email in emailState.emails"
@@ -152,7 +152,7 @@ const moveToTrash = async (emailId: string) => {
       <div v-if="loading">
         <div v-for="i in 10" :key="i" class="block p-4">
           <div class="flex items-center space-x-4">
-            <UiSkeleton class="size-8 rounded-full" />
+            <UiSkeleton class="size-10 rounded-full" />
             <div class="flex-1">
               <UiSkeleton class="h-4 w-full max-w-sm" />
               <UiSkeleton class="h-5 mt-1 w-full max-w-64" />
