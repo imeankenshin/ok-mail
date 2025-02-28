@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import type { EventHandlerRequest } from "h3";
 import type { Email, EmailListResponse } from "#shared/types/email";
+import { tryCatch } from "~/shared/utils/error";
 
 export default defineVerifiedOnlyEventHandler<
   EventHandlerRequest,
@@ -13,11 +14,20 @@ export default defineVerifiedOnlyEventHandler<
     version: "v1",
     auth: event.context.oAuth2Client,
   });
-  const messageList = await gmail.users.messages.list({
-    userId: "me",
-    maxResults: limit,
-    pageToken: query.pageToken as string,
-  });
+  const [messageList, error] = await tryCatch(() =>
+    gmail.users.messages.list({
+      userId: "me",
+      maxResults: limit,
+      pageToken: query.pageToken as string,
+    })
+  );
+
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Failed to fetch emails",
+    });
+  }
 
   const messages = messageList.data.messages || [];
   const emails = (
