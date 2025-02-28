@@ -9,7 +9,7 @@ const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
 });
 
 const styleSheet = computed(() =>
-  email.value?.isHtml ? email.value.styleSheet : ""
+  email.value?.isHtml && email.value.styleSheet ? email.value.styleSheet : ""
 );
 useStyleTag(styleSheet);
 
