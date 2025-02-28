@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Mail, User, Trash2, Star, Lock } from "lucide-vue-next";
 import type { EmailListResponse } from "#shared/types/email";
-import { tryCatch } from "#shared/utils/error";
 
 const { data: session, error: sessionError } = await useSession(useFetch);
 
@@ -66,14 +65,15 @@ const moveToTrash = async (emailId: string) => {
     ...emailState.value,
     emails: emailState.value.emails.filter((i) => i.id !== emailId),
   };
-  const [_, error] = await tryCatch(() =>
-    $fetch(`/api/emails/${emailId}/trash`, {
-      method: "POST",
-    })
-  );
-  if (error) {
-    emailState.value = previousState;
-  }
+  $fetch(`/api/emails/${emailId}/trash`, {
+    method: "POST",
+    onResponseError() {
+      emailState.value = previousState;
+    },
+    onRequestError() {
+
+    }
+  });
 };
 </script>
 

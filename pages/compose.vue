@@ -1,6 +1,5 @@
 <script setup>
 import { Loader2 } from "lucide-vue-next";
-import { tryCatch } from "~/shared/utils/error";
 
 const router = useRouter();
 const sending = ref(false);
@@ -53,15 +52,13 @@ const sendEmail = async () => {
   if (!validate()) return;
 
   sending.value = true;
-  await tryCatch(() =>
-    fetch("/api/emails/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(email.value),
-    })
-  );
+  await $fetch("/api/emails/send", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(email.value),
+  });
 
   router.push("/");
   sending.value = false;
