@@ -3,6 +3,7 @@ import { google } from "googleapis";
 import { JSDOM } from "jsdom";
 import type { CssAtRuleAST } from "@adobe/css-tools";
 import { parse, stringify } from "@adobe/css-tools";
+import { tryCatch } from "~/shared/utils/error";
 
 type CommonEmail = {
   from: string;
@@ -15,7 +16,7 @@ type CommonEmail = {
 
 type HTMLEmail = CommonEmail & {
   isHtml: true;
-  styleSheet: string;
+  styleSheet: string | null;
   lang: string;
 };
 
@@ -105,18 +106,21 @@ function createGetEmailResponce(
   document.querySelectorAll("a").forEach((anchor) => {
     anchor.target = "_blank";
   });
-  const styleSheetEls = Array.from(document.querySelectorAll("style"));
-  const styleSheet = styleSheetEls
-    .map((styleElement) => styleElement.textContent)
-    .join("\n");
-  const parsedStyleSheet = parse(styleSheet);
-  transfrom(parsedStyleSheet.stylesheet);
-
   return {
     ...plainEmail,
     body: document.body.innerHTML,
     isHtml: true,
-    styleSheet: stringify(parsedStyleSheet),
+    styleSheet: Array.from(document.querySelectorAll("style"))
+      .map((el) => el.textContent)
+      .map((text) => {
+        if (!text) return null;
+        const [parsed, error] = tryCatch(() => parse(text));
+        if (error) return null;
+        transfrom(parsed.stylesheet);
+        return stringify(parsed);
+      })
+      .filter((el) => el !== null)
+      .join("\n"),
     lang: document.documentElement.lang || "",
   };
 }
@@ -145,4 +149,5 @@ function transfrom(rules: { rules: CssAtRuleAST[] }) {
         break;
     }
   });
+  return rules;
 }
