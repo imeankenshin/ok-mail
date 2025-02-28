@@ -23,36 +23,28 @@ const initializeEmails = async () => {
   if (emailState.value.initialized) return;
 
   loading.value = true;
-  try {
-    const response = await $fetch("/api/emails");
-    emailState.value = {
-      emails: response.emails,
-      hasNextPage: response.hasNextPage,
-      nextPageToken: response.nextPageToken,
-      initialized: true,
-    };
-  } catch (error) {
-    console.error("メールの初期化に失敗しました:", error);
-  }
+  const response = await $fetch("/api/emails");
+  emailState.value = {
+    emails: response.emails,
+    hasNextPage: response.hasNextPage,
+    nextPageToken: response.nextPageToken,
+    initialized: true,
+  };
   loading.value = false;
 };
 
 // 追加のメール取得
 const fetchEmails = async () => {
   loading.value = true;
-  try {
-    const response = await $fetch(
-      `/api/emails?pageToken=${emailState.value.nextPageToken}`
-    );
-    emailState.value = {
-      emails: [...emailState.value.emails, ...response.emails],
-      hasNextPage: response.hasNextPage,
-      nextPageToken: response.nextPageToken,
-      initialized: true,
-    };
-  } catch (error) {
-    console.error("追加のメール取得に失敗しました:", error);
-  }
+  const response = await $fetch(
+    `/api/emails?pageToken=${emailState.value.nextPageToken}`
+  );
+  emailState.value = {
+    emails: [...emailState.value.emails, ...response.emails],
+    hasNextPage: response.hasNextPage,
+    nextPageToken: response.nextPageToken,
+    initialized: true,
+  };
   loading.value = false;
 };
 
@@ -69,16 +61,19 @@ onMounted(() => {
 
 const moveToTrash = async (emailId: string) => {
   const previousState = { ...emailState.value };
-  try {
-    emailState.value = {
-      ...emailState.value,
-      emails: emailState.value.emails.filter((i) => i.id !== emailId),
-    };
-    await $fetch(`/api/emails/${emailId}/trash`, { method: "POST" });
-  } catch (error) {
-    console.error("メールの削除に失敗しました:", error);
-    emailState.value = previousState;
-  }
+  emailState.value = {
+    ...emailState.value,
+    emails: emailState.value.emails.filter((i) => i.id !== emailId),
+  };
+  $fetch(`/api/emails/${emailId}/trash`, {
+    method: "POST",
+    onResponseError() {
+      emailState.value = previousState;
+    },
+    onRequestError() {
+
+    }
+  });
 };
 </script>
 

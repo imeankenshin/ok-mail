@@ -1,5 +1,20 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
+import consola from "consola";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  log: [
+    {
+      emit: "event",
+      level: "query",
+    },
+  ],
+});
 
-export default prisma
+prisma.$on("query", (e) => {
+  consola.log({
+    tag: "Prisma",
+    args: [`query=${e.query}, params=${e.params}, duration=${e.duration}`],
+  });
+});
+
+export default prisma;

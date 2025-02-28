@@ -1,10 +1,8 @@
 <script setup>
-import { Loader2 } from 'lucide-vue-next'
+import { Loader2 } from "lucide-vue-next";
 
 const router = useRouter();
 const sending = ref(false);
-const showError = ref(false);
-const errorMessage = ref("");
 const errors = ref({
   to: [],
   subject: [],
@@ -54,29 +52,16 @@ const sendEmail = async () => {
   if (!validate()) return;
 
   sending.value = true;
-  try {
-    const response = await fetch("/api/emails/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(email.value),
-    });
+  await $fetch("/api/emails/send", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(email.value),
+  });
 
-    const result = await response.json();
-    if (result.success) {
-      router.push("/");
-    } else {
-      throw new Error(result.error || "メールの送信に失敗しました");
-    }
-  } catch (error) {
-    console.error("メール送信エラー:", error);
-    errorMessage.value =
-      error.message || "メールの送信中にエラーが発生しました";
-    showError.value = true;
-  } finally {
-    sending.value = false;
-  }
+  router.push("/");
+  sending.value = false;
 };
 </script>
 
@@ -130,18 +115,12 @@ const sendEmail = async () => {
         </div>
 
         <div class="flex justify-end">
-          <UiButton
-            type="submit"
-            :disabled="!isValid || sending"
-            class="w-24"
-          >
+          <UiButton type="submit" :disabled="!isValid || sending" class="w-24">
             <template v-if="sending">
               <Loader2 class="mr-2 h-4 w-4 animate-spin" />
               送信中
             </template>
-            <template v-else>
-              送信
-            </template>
+            <template v-else> 送信 </template>
           </UiButton>
         </div>
       </form>

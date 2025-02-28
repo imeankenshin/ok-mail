@@ -1,6 +1,7 @@
 // メールを既読にする
 
 import { google } from "googleapis";
+import { tryCatch } from "#shared/utils/error";
 
 export default defineVerifiedOnlyEventHandler(async (event) => {
   const emailId = getRouterParam(event, "id");
@@ -15,21 +16,21 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     version: "v1",
     auth: event.context.oAuth2Client,
   });
-  try {
-    await gmail.users.messages.modify({
+  const [_, error] = await tryCatch(() =>
+    gmail.users.messages.modify({
       userId: "me",
       id: emailId,
       requestBody: {
         removeLabelIds: ["UNREAD"],
       },
-    });
+    })
+  );
 
-    return { success: true };
-  } catch (error) {
-    console.error("Error marking email as read:", error);
+  if (error) {
     throw createError({
       statusCode: 500,
       statusMessage: "Failed to mark email as read",
     });
   }
+  return { success: true };
 });

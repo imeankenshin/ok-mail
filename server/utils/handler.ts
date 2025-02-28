@@ -37,7 +37,9 @@ export function defineVerifiedOnlyEventHandler<
     }
 
     const oauth2Client = new google.auth.OAuth2({
-      apiKey: process.env.GOOGLE_API_KEY,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      redirectUri: process.env.GOOGLE_REDIRECT_URI,
     });
 
     const account = await prisma.account.findFirst({
@@ -45,12 +47,18 @@ export function defineVerifiedOnlyEventHandler<
     });
 
     if (!account) {
-      throw new Error("アカウントが存在しません");
+      throw createError({
+        statusCode: 401,
+        statusMessage: "Unauthorized",
+      });
     }
 
     if (new Date() >= session.session.expiresAt) {
       if (!account.refreshToken) {
-        throw new Error("再認証が必要です");
+        throw createError({
+          statusCode: 401,
+          statusMessage: "Refresh token is required",
+        });
       }
 
       oauth2Client.setCredentials({
@@ -71,6 +79,7 @@ export function defineVerifiedOnlyEventHandler<
 
     // 認証情報を設定
     oauth2Client.setCredentials({
+      expiry_date: session.session.expiresAt.getTime(),
       access_token: account.accessToken,
       refresh_token: account.refreshToken,
     });
