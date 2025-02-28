@@ -1,4 +1,67 @@
-In this project, we use Better auth for authentication. If you want to know more about Better auth, please visit the links below:
-- Reddit: https://www.reddit.com/r/better_auth/
-- GitHub: https://github.com/better-auth/better-auth
-- Documentation: https://better-auth.com
+# 技術スタック
+
+## コア技術
+
+- TypeScript: ^5.7.3
+- Node.js: ^20.0.0
+
+## フロントエンド
+
+- Nuxt.js: ^3.15.4
+- Vue: latest
+- Vue Router: latest
+- Pinia: ^0.10.1
+- Tailwind CSS: ^3.4.1
+- shadcn/ui: ^1.0.1
+- Lucide Vue Next: ^0.476.0
+
+## バックエンド
+
+- Prisma: ^6.3.1
+- Prisma Client: ^6.3.1
+- Google APIs: ^144.0.0
+- Google Auth Library: ^9.15.1
+
+## 開発ツール
+
+- TypeScript: ^5.7.3
+- ESLint: ^9.20.1
+- Consola: ^3.4.0
+- Nuxt ESLint: 1.0.1
+- Tailwind CSS Animate: ^1.0.7
+- Tailwind Merge: ^3.0.2
+
+---
+
+## プロジェクト構成
+
+以下のディレクトリ構造に従って実装を行ってください:
+
+```console
+ok-mail/
+├── assets
+│   └── css
+├── components
+│   ├── app          # アプリケーション全体に共通するコンポーネント
+│   ├── error        # エラーに関するコンポーネント
+│   └── ui           # 基本UI
+├── pages
+├── prisma
+│   └── migrations
+├── public
+├── server
+│   ├── api          # APIエンドポイント
+│   └── utils        # サーバー依存のユーティリティ
+├── shared           # 共通型定義とユーティリティ
+│   ├── types
+│   └── utils
+├── stores           # ストア
+└── utils            # クライアント依存のユーティリティ
+```
+
+### 配置ルール
+
+- UIコンポーネント → `components/ui/`
+- APIエンドポイント → `server/api/[endpoint].ts`
+- 共通処理 → `shared/utils/`
+- API関連処理 → `server/utils/`
