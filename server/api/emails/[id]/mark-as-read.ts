@@ -27,7 +27,6 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
   );
 
   if (error) {
-    console.error("Error marking email as read:", error);
     throw createError({
       statusCode: 500,
       statusMessage: "Failed to mark email as read",

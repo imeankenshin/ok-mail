@@ -24,7 +24,6 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
   );
 
   if (error) {
-    console.error("Error trashing email:", error);
     throw createError({
       statusCode: 500,
       statusMessage: "Failed to trash email",
