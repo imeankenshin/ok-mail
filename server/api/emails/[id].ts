@@ -51,7 +51,6 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
   );
 
   if (error) {
-    console.error("Error fetching email:", error);
     throw createError({
       statusCode: 500,
       message: "メールの取得に失敗しました",

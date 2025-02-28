@@ -44,7 +44,6 @@ export default defineEventHandler(async (event) => {
     })
   );
   if (sendEmailError) {
-    console.error("Error sending email:", sendEmailError);
     throw createError({
       statusCode: 500,
       message: "メールの送信に失敗しました",
