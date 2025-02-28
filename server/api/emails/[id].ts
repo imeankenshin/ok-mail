@@ -3,7 +3,7 @@ import { google } from "googleapis";
 import { JSDOM } from "jsdom";
 import type { CssAtRuleAST } from "@adobe/css-tools";
 import { parse, stringify } from "@adobe/css-tools";
-import { tryCatch } from "~/shared/utils/error";
+import { tryCatch } from "#shared/utils/error";
 
 type CommonEmail = {
   from: string;
@@ -35,30 +35,33 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     });
   }
 
-  try {
-    const gmail = google.gmail({
-      version: "v1",
-      auth: event.context.oAuth2Client,
-    });
-    const response = await gmail.users.messages.get({
+  const gmail = google.gmail({
+    version: "v1",
+    auth: event.context.oAuth2Client,
+  });
+
+  const [response, error] = await tryCatch(async () =>
+    gmail.users.messages.get({
       userId: "me",
       id,
       format: "full",
       // 必要なフィールドのみを指定
       fields: "payload(headers,body,parts(mimeType,body))",
-    });
+    })
+  );
 
-    const message = response.data;
-    const headers = message?.payload?.headers || [];
-    const content = getContent(message);
-    return createGetEmailResponce(headers, content);
-  } catch (error) {
+  if (error) {
     console.error("Error fetching email:", error);
     throw createError({
       statusCode: 500,
       message: "メールの取得に失敗しました",
     });
   }
+
+  const message = response.data;
+  const headers = message?.payload?.headers || [];
+  const content = getContent(message);
+  return createGetEmailResponce(headers, content);
 });
 
 function getContent(message: gmail_v1.Schema$Message): string {
