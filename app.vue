@@ -6,14 +6,11 @@ const refreshEmails = () => {
   console.log("メールを更新中...");
 };
 
-const handleLogout = () => {
-  signOut();
-};
 </script>
 
 <template>
   <UiSidebarProvider>
-    <AppSidebar @logout="handleLogout" />
+    <AppSidebar @logout="signOut()" />
     <div class="min-h-screen bg-background w-full">
       <header class="border-b sticky inset-0 bg-background">
         <div class="flex h-16 items-center px-4">
