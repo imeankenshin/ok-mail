@@ -11,7 +11,10 @@ const prisma = new PrismaClient({
 });
 
 prisma.$on("query", (e) => {
-  consola.info(`[prisma] [query]`, e);
+  consola.log({
+    tag: "Prisma",
+    args: [`query=${e.query}, params=${e.params}, duration=${e.duration}`],
+  });
 });
 
 export default prisma;
