@@ -19,6 +19,7 @@
 
 - Prisma: ^6.3.1
 - Prisma Client: ^6.3.1
+- Better Auth: ^1.1.18
 - Google APIs: ^144.0.0
 - Google Auth Library: ^9.15.1
 
