@@ -68,6 +68,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
+      valibot:
+        specifier: 1.0.0-rc.2
+        version: 1.0.0-rc.2(typescript@5.7.3)
       vue:
         specifier: latest
         version: 3.5.13(typescript@5.7.3)
@@ -4430,6 +4433,14 @@ packages:
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
+
+  valibot@1.0.0-rc.2:
+    resolution: {integrity: sha512-Tnnp7dydpihvoUbJiaxuYfsCAgAFKuFMex7PTaI25XSjRWkU70DmJPlAO1W6sF1/WUx4RNWyM2hdmBSMIUSZFA==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
@@ -9719,6 +9730,10 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@9.0.1: {}
+
+  valibot@1.0.0-rc.2(typescript@5.7.3):
+    optionalDependencies:
+      typescript: 5.7.3
 
   validate-npm-package-license@3.0.4:
     dependencies:
