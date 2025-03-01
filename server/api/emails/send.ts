@@ -1,14 +1,9 @@
 import { google } from "googleapis";
-import { defineEventHandler, readBody } from "h3";
+import { readBody } from "h3";
 import { tryCatch } from "#shared/utils/error";
+import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
 
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-);
-
-export default defineEventHandler(async (event) => {
+export default defineVerifiedOnlyEventHandler(async (event) => {
   const [{ to, subject, body }, readBodyError] = await tryCatch(() => readBody(event));
 
   if (readBodyError) {
@@ -18,7 +13,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+  const gmail = google.gmail({ version: "v1", auth: event.context.oAuth2Client });
   const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`;
   const messageParts = [
     `To: ${to}`,
@@ -44,10 +39,7 @@ export default defineEventHandler(async (event) => {
     })
   );
   if (sendEmailError) {
-    throw createError({
-      statusCode: 500,
-      message: "メールの送信に失敗しました",
-    });
+    throw createError(sendEmailError);
   }
 
   return { success: true, messageId: res.data.id };

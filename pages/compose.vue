@@ -1,5 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { Loader2 } from "lucide-vue-next";
+import { tryCatch } from "~/shared/utils/error";
 
 const router = useRouter();
 const sending = ref(false);
@@ -19,7 +20,7 @@ const isValid = computed(() => {
   return email.value.to && email.value.subject && email.value.body;
 });
 
-const validateEmail = (email) => {
+const validateEmail = (email: string) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);
 };
@@ -52,15 +53,20 @@ const sendEmail = async () => {
   if (!validate()) return;
 
   sending.value = true;
-  await $fetch("/api/emails/send", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(email.value),
-  });
+  const [_, error] = await tryCatch(() =>
+    $fetch("/api/emails/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(email.value),
+    })
+  );
 
-  router.push("/");
+  if (!error) {
+    router.push("/");
+  }
+
   sending.value = false;
 };
 </script>
