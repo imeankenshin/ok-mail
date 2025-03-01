@@ -53,7 +53,7 @@ export function defineVerifiedOnlyEventHandler<
       });
     }
 
-    if (new Date() >= session.session.expiresAt) {
+    if (new Date() >= account.accessTokenExpiresAt!) {
       if (!account.refreshToken) {
         throw createError({
           statusCode: 401,
@@ -79,7 +79,7 @@ export function defineVerifiedOnlyEventHandler<
 
     // 認証情報を設定
     oauth2Client.setCredentials({
-      expiry_date: session.session.expiresAt.getTime(),
+      expiry_date: account.accessTokenExpiresAt!.getTime(),
       access_token: account.accessToken,
       refresh_token: account.refreshToken,
     });

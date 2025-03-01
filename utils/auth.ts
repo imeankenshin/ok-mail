@@ -7,6 +7,7 @@ export const auth = betterAuth({
   }),
   socialProviders: {
     google: {
+      accessType: "offline",
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       redirectURI: process.env.GOOGLE_REDIRECT_URI!,
