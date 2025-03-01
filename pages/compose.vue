@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import { Loader2 } from "lucide-vue-next";
-import { tryCatch } from "~/shared/utils/error";
+import { tryCatchCallback } from "~/shared/utils/error";
 
 const router = useRouter();
 const sending = ref(false);
-const errors = ref({
-  to: [],
-  subject: [],
-  body: [],
-});
 
 const email = ref({
   to: "",
@@ -20,40 +15,9 @@ const isValid = computed(() => {
   return email.value.to && email.value.subject && email.value.body;
 });
 
-const validateEmail = (email: string) => {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
-};
-
-const validate = () => {
-  errors.value = {
-    to: [],
-    subject: [],
-    body: [],
-  };
-
-  if (!email.value.to) {
-    errors.value.to.push("宛先は必須です");
-  } else if (!validateEmail(email.value.to)) {
-    errors.value.to.push("正しいメールアドレスを入力してください");
-  }
-
-  if (!email.value.subject) {
-    errors.value.subject.push("件名は必須です");
-  }
-
-  if (!email.value.body) {
-    errors.value.body.push("本文は必須です");
-  }
-
-  return !Object.values(errors.value).some((field) => field.length > 0);
-};
-
 const sendEmail = async () => {
-  if (!validate()) return;
-
   sending.value = true;
-  const [_, error] = await tryCatch(() =>
+  const error = await tryCatchCallback(() =>
     $fetch("/api/emails/send", {
       method: "POST",
       headers: {
@@ -85,11 +49,7 @@ const sendEmail = async () => {
             v-model="email.to"
             type="email"
             placeholder="example@example.com"
-            :class="{ 'border-destructive': errors.to.length > 0 }"
           />
-          <p v-if="errors.to.length > 0" class="text-sm text-destructive">
-            {{ errors.to[0] }}
-          </p>
         </div>
 
         <div class="space-y-2">
@@ -99,11 +59,7 @@ const sendEmail = async () => {
             v-model="email.subject"
             type="text"
             placeholder="件名を入力"
-            :class="{ 'border-destructive': errors.subject.length > 0 }"
           />
-          <p v-if="errors.subject.length > 0" class="text-sm text-destructive">
-            {{ errors.subject[0] }}
-          </p>
         </div>
 
         <div class="space-y-2">
@@ -113,11 +69,7 @@ const sendEmail = async () => {
             v-model="email.body"
             placeholder="本文を入力"
             rows="10"
-            :class="{ 'border-destructive': errors.body.length > 0 }"
           />
-          <p v-if="errors.body.length > 0" class="text-sm text-destructive">
-            {{ errors.body[0] }}
-          </p>
         </div>
 
         <div class="flex justify-end">
