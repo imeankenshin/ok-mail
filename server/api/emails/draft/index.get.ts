@@ -19,6 +19,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     throw createError({
       statusCode: 500,
       message: "下書きの一覧取得に失敗しました",
+      cause: error,
     });
   }
 
