@@ -11,7 +11,7 @@ const sendEmailRequestSchema = object({
 });
 
 export default defineVerifiedOnlyEventHandler(async (event) => {
-  const body = safeParse(await readBody(event), sendEmailRequestSchema);
+  const body = safeParse(sendEmailRequestSchema, await readBody(event));
 
   if (!body.success) {
     throw createError({
