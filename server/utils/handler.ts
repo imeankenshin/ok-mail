@@ -8,6 +8,7 @@ import type {
 import { H3Event } from "h3";
 import { google } from "googleapis";
 import type { OAuth2Client } from "google-auth-library";
+import { tryCatch } from "~/shared/utils/error";
 
 class VerifiedEvent<T extends EventHandlerRequest> extends H3Event<T> {
   declare context: H3EventContext & {
@@ -69,14 +70,22 @@ export function defineVerifiedOnlyEventHandler<
         });
       }
 
-      const { credentials } = await oauth2Client.refreshAccessToken();
+      const [credentials, error] = await tryCatch(() =>
+        oauth2Client.refreshAccessToken().then((res) => res.credentials)
+      );
+
+      if (error) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: "Failed to refresh access token",
+          cause: error,
+        });
+      }
       await prisma.account.update({
         where: { id: account.id },
         data: {
           accessToken: credentials.access_token!,
-          accessTokenExpiresAt: new Date(
-            Date.now() + (credentials.expiry_date || 0)
-          ),
+          accessTokenExpiresAt: new Date(credentials.expiry_date || 0),
         },
       });
     }
