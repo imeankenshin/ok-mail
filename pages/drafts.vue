@@ -61,13 +61,13 @@ const moveToTrash = async (draftId: string) => {
     ...draftState.value,
     drafts: draftState.value.drafts.filter((i) => i.id !== draftId),
   };
-  $fetch(`/api/emails/${draftId}/trash`, {
-    method: "POST",
+  $fetch(`/api/emails/draft/${draftId}`, {
+    method: "DELETE",
     onResponseError() {
       draftState.value = previousState;
     },
     onRequestError() {
-
+      draftState.value = previousState;
     }
   });
 };
