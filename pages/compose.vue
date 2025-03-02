@@ -7,6 +7,7 @@ type DraftStatus = "saving" | "saved" | "error" | "idle";
 const router = useRouter();
 const route = useRoute();
 const sending = ref(false);
+const edited = ref(false);
 const draftId = ref<string | null>((route.query.draftId as string) || null);
 const draftStatus = ref<DraftStatus>("idle");
 
@@ -27,6 +28,7 @@ const debounceChangeDraftStatus = useDebounceFn(() => {
 }, 3000);
 // 下書き保存処理
 const saveDraft = async () => {
+  if (!edited.value) return;
   draftStatus.value = "saving";
 
   const payload = {
@@ -47,6 +49,7 @@ const saveDraft = async () => {
   if (!error) {
     draftId.value = response.draftId!;
     draftStatus.value = "saved";
+    edited.value = true;
   } else {
     draftStatus.value = "error";
   }
@@ -58,6 +61,9 @@ const debouncedSaveDraft = useDebounceFn(saveDraft, 1000);
 
 watch(email, debouncedSaveDraft, { deep: true });
 
+onBeforeUnmount(() => {
+  debouncedSaveDraft();
+});
 const sendEmail = async () => {
   sending.value = true;
   const error = await tryCatchCallback(() =>
