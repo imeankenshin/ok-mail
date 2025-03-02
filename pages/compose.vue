@@ -22,6 +22,9 @@ const { data: email } = await useFetch(
   }
 );
 
+const debounceChangeDraftStatus = useDebounceFn(() => {
+  draftStatus.value = "idle";
+}, 3000);
 // 下書き保存処理
 const saveDraft = async () => {
   draftStatus.value = "saving";
@@ -48,21 +51,12 @@ const saveDraft = async () => {
     draftStatus.value = "error";
   }
 
-  setTimeout(() => {
-    draftStatus.value = "idle";
-  }, 3000);
+  debounceChangeDraftStatus();
 };
 
-// 入力内容が変更されたら下書き保存する（デバウンス処理）
 const debouncedSaveDraft = useDebounceFn(saveDraft, 1000);
 
-watch(
-  email,
-  () => {
-    debouncedSaveDraft();
-  },
-  { deep: true }
-);
+watch(email, debouncedSaveDraft, { deep: true });
 
 const sendEmail = async () => {
   sending.value = true;
