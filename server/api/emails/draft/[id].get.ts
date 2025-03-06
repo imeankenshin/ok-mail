@@ -18,11 +18,13 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
   });
 
   const [draft, error] = await tryCatch(() =>
-    gmail.users.drafts.get({
-      userId: "me",
-      id,
-      format: "full",
-    }).then(res=>res.data)
+    gmail.users.drafts
+      .get({
+        userId: "me",
+        id,
+        format: "full",
+      })
+      .then((res) => res.data)
   );
 
   if (error) {
@@ -47,16 +49,17 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
   // 下書きからメール情報を抽出
   const toHeader = headers.find((h) => h.name === "To")?.value || "";
   // 複数の宛先がある場合はカンマで区切られているので配列に変換
-  const to = toHeader.includes(",")
-    ? toHeader.split(",").map(email => email.trim())
-    : [toHeader];
+  // "aaa" <aaa@example.com> -> aaa@example.com
+  const to = toHeader.split(",").map((email) => email.trim().replace(/"(.*?)" <(.*?)>/, "$2"));
   const subject = headers.find((h) => h.name === "Subject")?.value || "";
 
   // 本文を取得
   let body = "";
   if (message.payload.parts) {
     // マルチパートの場合
-    const textPart = message.payload.parts.find(part => part.mimeType === "text/plain");
+    const textPart = message.payload.parts.find(
+      (part) => part.mimeType === "text/plain"
+    );
     if (textPart && textPart.body && textPart.body.data) {
       body = Buffer.from(textPart.body.data, "base64").toString("utf-8");
     }
@@ -64,7 +67,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     // シングルパートの場合
     body = Buffer.from(message.payload.body.data, "base64").toString("utf-8");
   }
-  console.log(to)
+  console.log(to);
 
   return {
     to,

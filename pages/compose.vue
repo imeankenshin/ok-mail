@@ -8,7 +8,7 @@ type DraftStatus = "saving" | "saved" | "error" | "idle";
 const router = useRouter();
 const route = useRoute();
 const sending = ref(false);
-const edited = ref(false);
+const isEdited = ref(false)
 const draftId = ref<string | null>((route.query.draftId as string) || null);
 const draftStatus = ref<DraftStatus>("idle");
 
@@ -25,19 +25,17 @@ const { data: email } = await useFetch<EmailDraft>(
 );
 
 // メールアドレスの配列を管理
-const tags = computed<string[]>(() => email.value.to);
+const tags = toRef(email.value.to);
 // タグが変更されたときにメールの宛先を更新
 watch(tags, (newTags) => {
   email.value.to = newTags.length > 0 ? newTags : [];
-  edited.value = true;
-}, { immediate: true });
+}, { deep: true });
 
 const debounceChangeDraftStatus = useDebounceFn(() => {
   draftStatus.value = "idle";
 }, 3000);
 // 下書き保存処理
 const saveDraft = async () => {
-  if (!edited.value) return;
   draftStatus.value = "saving";
 
   const payload = {
@@ -58,7 +56,6 @@ const saveDraft = async () => {
   if (!error) {
     draftId.value = response.draftId!;
     draftStatus.value = "saved";
-    edited.value = true;
   } else {
     draftStatus.value = "error";
   }
@@ -68,9 +65,10 @@ const saveDraft = async () => {
 
 const debouncedSaveDraft = useDebounceFn(saveDraft, 1000);
 
-watch(email, debouncedSaveDraft, { deep: true });
+watch(email, () => { isEdited.value = true; debouncedSaveDraft() }, { deep: true });
 
 onBeforeUnmount(() => {
+  if (!isEdited.value) return;
   debouncedSaveDraft();
 });
 const sendEmail = async () => {
@@ -102,38 +100,23 @@ const sendEmail = async () => {
       <form class="space-y-4" @submit.prevent="sendEmail">
         <div class="space-y-2">
           <label for="to" class="text-sm font-medium">宛先</label>
-          <UiTagsInput
-            v-model="tags"
-            placeholder="メールアドレスを入力"
-          >
+          <UiTagsInput v-model="tags" placeholder="メールアドレスを入力">
             <UiTagsInputItem v-for="tag in tags" :key="tag" :value="tag">
               <UiTagsInputItemText>{{ tag }}</UiTagsInputItemText>
               <UiTagsInputItemDelete />
             </UiTagsInputItem>
-            <UiTagsInputInput
-              placeholder="メールアドレスを入力してEnterキーを押すか、カンマで区切って複数入力"
-            />
+            <UiTagsInputInput placeholder="メールアドレスを入力してEnterキーを押すか、カンマで区切って複数入力" />
           </UiTagsInput>
         </div>
 
         <div class="space-y-2">
           <label for="subject" class="text-sm font-medium">件名</label>
-          <UiInput
-            id="subject"
-            v-model="email.subject"
-            type="text"
-            placeholder="件名を入力"
-          />
+          <UiInput id="subject" v-model="email.subject" type="text" placeholder="件名を入力" />
         </div>
 
         <div class="space-y-2">
           <label for="body" class="text-sm font-medium">本文</label>
-          <UiTextarea
-            id="body"
-            v-model="email.body"
-            placeholder="本文を入力"
-            rows="10"
-          />
+          <UiTextarea id="body" v-model="email.body" placeholder="本文を入力" rows="10" />
         </div>
 
         <div class="flex justify-between items-center">
