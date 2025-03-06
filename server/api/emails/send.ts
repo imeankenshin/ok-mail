@@ -3,7 +3,6 @@ import { readBody } from "h3";
 import { tryCatch } from "#shared/utils/error";
 import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
 import { object, string, pipe, minLength, safeParse, array} from "valibot";
-import { encodeMIMEMessage } from '~/server/utils/mime-encoder';
 
 const sendEmailRequestSchema = object({
   to: array(string()),

@@ -5,7 +5,6 @@ import { tryCatch, tryCatchCallback } from "#shared/utils/error";
 import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
 import { object, string, safeParse, pipe, nullish, array } from "valibot";
 import consola from "consola";
-import { encodeMIMEMessage } from '~/server/utils/mime-encoder';
 
 const saveDraftRequestSchema = object({
   to: array(pipe(string())),
