@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import { tryCatch } from "#shared/utils/error";
 import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
+import type { EmailDraft } from "#shared/types/email";
 
 export default defineVerifiedOnlyEventHandler(async (event) => {
   const id = getRouterParam(event, "id");
@@ -44,7 +45,11 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
   const headers = message.payload.headers || [];
 
   // 下書きからメール情報を抽出
-  const to = headers.find((h) => h.name === "To")?.value || "";
+  const toHeader = headers.find((h) => h.name === "To")?.value || "";
+  // 複数の宛先がある場合はカンマで区切られているので配列に変換
+  const to = toHeader.includes(",")
+    ? toHeader.split(",").map(email => email.trim())
+    : [toHeader];
   const subject = headers.find((h) => h.name === "Subject")?.value || "";
 
   // 本文を取得
@@ -53,17 +58,18 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     // マルチパートの場合
     const textPart = message.payload.parts.find(part => part.mimeType === "text/plain");
     if (textPart && textPart.body && textPart.body.data) {
-      body = Buffer.from(textPart.body.data, "base64").toString();
+      body = Buffer.from(textPart.body.data, "base64").toString("utf-8");
     }
   } else if (message.payload.body && message.payload.body.data) {
     // シングルパートの場合
-    body = Buffer.from(message.payload.body.data, "base64").toString();
+    body = Buffer.from(message.payload.body.data, "base64").toString("utf-8");
   }
+  console.log(to)
 
   return {
     to,
     subject,
     body,
     draftId: id,
-  };
+  } satisfies EmailDraft;
 });

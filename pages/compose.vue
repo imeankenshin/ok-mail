@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Loader2 } from "lucide-vue-next";
 import { tryCatch, tryCatchCallback } from "~/shared/utils/error";
+import type { EmailDraft } from "~/shared/types/email";
 
 type DraftStatus = "saving" | "saved" | "error" | "idle";
 
@@ -11,17 +12,25 @@ const edited = ref(false);
 const draftId = ref<string | null>((route.query.draftId as string) || null);
 const draftStatus = ref<DraftStatus>("idle");
 
-const { data: email } = await useFetch(
+const { data: email } = await useFetch<EmailDraft>(
   `/api/emails/draft/${draftId.value as ":id"}`,
   {
     immediate: !!draftId.value,
     default: () => ({
-      to: "",
+      to: [],
       subject: "",
       body: "",
     }),
   }
 );
+
+// メールアドレスの配列を管理
+const tags = computed<string[]>(() => email.value.to);
+// タグが変更されたときにメールの宛先を更新
+watch(tags, (newTags) => {
+  email.value.to = newTags.length > 0 ? newTags : [];
+  edited.value = true;
+}, { immediate: true });
 
 const debounceChangeDraftStatus = useDebounceFn(() => {
   draftStatus.value = "idle";
@@ -93,12 +102,18 @@ const sendEmail = async () => {
       <form class="space-y-4" @submit.prevent="sendEmail">
         <div class="space-y-2">
           <label for="to" class="text-sm font-medium">宛先</label>
-          <UiInput
-            id="to"
-            v-model="email.to"
-            type="email"
-            placeholder="example@example.com"
-          />
+          <UiTagsInput
+            v-model="tags"
+            placeholder="メールアドレスを入力"
+          >
+            <UiTagsInputItem v-for="tag in tags" :key="tag" :value="tag">
+              <UiTagsInputItemText>{{ tag }}</UiTagsInputItemText>
+              <UiTagsInputItemDelete />
+            </UiTagsInputItem>
+            <UiTagsInputInput
+              placeholder="メールアドレスを入力してEnterキーを押すか、カンマで区切って複数入力"
+            />
+          </UiTagsInput>
         </div>
 
         <div class="space-y-2">

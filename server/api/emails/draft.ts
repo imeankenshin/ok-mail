@@ -3,11 +3,12 @@ import { google } from "googleapis";
 import { readBody } from "h3";
 import { tryCatch, tryCatchCallback } from "#shared/utils/error";
 import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
-import { object, string, safeParse, pipe, email, nullish } from "valibot";
+import { object, string, safeParse, pipe, nullish, array } from "valibot";
 import consola from "consola";
+import { encodeMIMEMessage } from '~/server/utils/mime-encoder';
 
 const saveDraftRequestSchema = object({
-  to: pipe(string(), email()),
+  to: array(pipe(string())),
   subject: nullish(string()),
   body: nullish(string()),
   draftId: nullish(string()),
@@ -30,22 +31,12 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     auth: event.context.oAuth2Client,
   });
 
-  // Create the MIME message
-  const messageParts = [
-    body.output.to ? `To: ${body.output.to}` : "",
-    "Content-Type: text/plain; charset=utf-8",
-    "MIME-Version: 1.0",
-    body.output.subject ? `Subject: ${body.output.subject}` : "",
-    "",
-    body.output.body || "",
-  ].filter(Boolean); // Remove empty strings
-
-  const message = messageParts.join("\n");
-  const encodedMessage = Buffer.from(message)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+  // MIMEメッセージの作成
+  const encodedMessage = encodeMIMEMessage({
+    to: body.output.to,
+    subject: body.output.subject || '',
+    body: body.output.body || ''
+  });
 
   // Create or update draft
   const requestBody: gmail_v1.Schema$Draft = {

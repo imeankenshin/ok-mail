@@ -2,10 +2,11 @@ import { google } from "googleapis";
 import { readBody } from "h3";
 import { tryCatch } from "#shared/utils/error";
 import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
-import { object, string, pipe, email, minLength, safeParse} from "valibot";
+import { object, string, pipe, minLength, safeParse, array} from "valibot";
+import { encodeMIMEMessage } from '~/server/utils/mime-encoder';
 
 const sendEmailRequestSchema = object({
-  to: pipe(string(), email()),
+  to: array(string()),
   subject: pipe(string(), minLength(1)),
   body: pipe(string(), minLength(1)),
 });
@@ -22,21 +23,13 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
   }
 
   const gmail = google.gmail({ version: "v1", auth: event.context.oAuth2Client });
-  const utf8Subject = `=?utf-8?B?${Buffer.from(body.output.subject).toString("base64")}?=`;
-  const messageParts = [
-    `To: ${body.output.to}`,
-    "Content-Type: text/plain; charset=utf-8",
-    "MIME-Version: 1.0",
-    `Subject: ${utf8Subject}`,
-    "",
-    body.output.body,
-  ];
-  const message = messageParts.join("\n");
-  const encodedMessage = Buffer.from(message)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+
+  // MIMEメッセージの作成
+  const encodedMessage = encodeMIMEMessage({
+    to: body.output.to,
+    subject: body.output.subject,
+    body: body.output.body
+  });
 
   const [res, sendEmailError] = await tryCatch(() =>
     gmail.users.messages.send({
