@@ -111,12 +111,12 @@ const sendEmail = async () => {
 
         <div class="space-y-2">
           <label for="subject" class="text-sm font-medium">件名</label>
-          <UiInput id="subject" v-model="email.subject" type="text" placeholder="件名を入力" />
+          <UiInput id="subject" v-model="email.subject" required type="text" placeholder="件名を入力" />
         </div>
 
         <div class="space-y-2">
           <label for="body" class="text-sm font-medium">本文</label>
-          <UiTextarea id="body" v-model="email.body" placeholder="本文を入力" rows="10" />
+          <UiTextarea id="body" v-model="email.body" required placeholder="本文を入力" rows="10" />
         </div>
 
         <div class="flex justify-between items-center">
