@@ -12,6 +12,7 @@ type CommonEmail = {
   date: string;
   body: string;
   isHtml: boolean;
+  isRead: boolean;
 };
 
 type HTMLEmail = CommonEmail & {
@@ -58,9 +59,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
   }
 
   const message = response.data;
-  const headers = message?.payload?.headers || [];
-  const content = getContent(message);
-  return createGetEmailResponce(headers, content);
+  return createGetEmailResponce(message);
 });
 
 function getContent(message: gmail_v1.Schema$Message): string {
@@ -88,15 +87,17 @@ function getContent(message: gmail_v1.Schema$Message): string {
 }
 
 function createGetEmailResponce(
-  headers: gmail_v1.Schema$MessagePartHeader[],
-  content: string
+  message: gmail_v1.Schema$Message
 ): GetEmailResponce {
+  const headers = message?.payload?.headers || [];
+  const content = getContent(message);
   const plainEmail: PlainEmail = {
     subject: headers?.find((h) => h.name === "Subject")?.value || "(件名なし)",
     from: headers?.find((h) => h.name === "From")?.value || "",
     to: headers?.find((h) => h.name === "To")?.value || "",
     date: headers?.find((h) => h.name === "Date")?.value || "",
     body: content,
+    isRead: !!message.labelIds && !message.labelIds.includes("UNREAD"),
     isHtml: false,
   };
   if (headers.find((h) => h.name === "Content-Type")?.value === "text/plain")

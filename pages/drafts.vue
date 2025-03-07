@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { callOnce } from "#imports";
 import { Mail, User, Trash2, Star, Lock } from "lucide-vue-next";
 import type { Draft } from "~/shared/types/draft";
 
@@ -9,14 +10,12 @@ const draftState = useState("drafts", () => ({
   drafts: [] as Draft[],
   hasNextPage: false,
   nextPageToken: null as string | null,
-  initialized: false,
 }));
 
 const loading = ref(false);
 
 // 初回のメール取得
 const initializeEmails = async () => {
-  if (draftState.value.initialized) return;
 
   loading.value = true;
   const response = await $fetch("/api/emails/draft");
@@ -24,7 +23,6 @@ const initializeEmails = async () => {
     drafts: response.drafts,
     hasNextPage: response.hasNextPage,
     nextPageToken: response.nextPageToken || null,
-    initialized: true,
   };
   loading.value = false;
 };
@@ -39,7 +37,6 @@ const fetchEmails = async () => {
     drafts: [...draftState.value.drafts, ...response.drafts],
     hasNextPage: response.hasNextPage,
     nextPageToken: response.nextPageToken || null,
-    initialized: true,
   };
   loading.value = false;
 };
@@ -47,13 +44,6 @@ const fetchEmails = async () => {
 const loadMore = () => {
   fetchEmails();
 };
-
-// コンポーネントがマウントされたときに初期化
-onMounted(() => {
-  if (session.value && !draftState.value.initialized) {
-    initializeEmails();
-  }
-});
 
 const moveToTrash = async (draftId: string) => {
   const previousState = { ...draftState.value };
@@ -71,6 +61,10 @@ const moveToTrash = async (draftId: string) => {
     }
   });
 };
+
+await callOnce(async () => {
+  await initializeEmails();
+});
 </script>
 
 <template>
@@ -81,14 +75,12 @@ const moveToTrash = async (draftId: string) => {
       <UiAlertDescription>
         Gmailとの連携を行うには、Googleアカウントで認証を行なってください。
         <UiButton
-          variant="default"
-          @click="
-            signIn.social({
-              provider: 'google',
-              callbackURL: '/',
-            })
-          "
-        >
+variant="default" @click="
+          signIn.social({
+            provider: 'google',
+            callbackURL: '/',
+          })
+          ">
           <Mail class="mr-2 h-4 w-4" />
           Googleアカウントで認証
         </UiButton>
@@ -102,15 +94,8 @@ const moveToTrash = async (draftId: string) => {
 
     <div v-else-if="session">
       <div v-if="draftState.drafts.length">
-        <div
-          v-for="draft in draftState.drafts"
-          :key="draft.id"
-          class="border-b last:border-0"
-        >
-          <NuxtLink
-            :to="`/compose?draftId=${draft.id}`"
-            class="block p-4 hover:bg-accent transition-colors"
-          >
+        <div v-for="draft in draftState.drafts" :key="draft.id" class="border-b last:border-0">
+          <NuxtLink :to="`/compose?draftId=${draft.id}`" class="block p-4 hover:bg-accent transition-colors">
             <div class="flex items-center space-x-4">
               <UiAvatar>
                 <UiAvatarFallback>
@@ -122,12 +107,7 @@ const moveToTrash = async (draftId: string) => {
                 <p class="text-sm text-red-500">下書き</p>
               </div>
               <div class="flex items-center space-x-2">
-                <UiButton
-                  variant="ghost"
-                  size="icon"
-                  :title="'ゴミ箱に移動'"
-                  @click.prevent="moveToTrash(draft.id)"
-                >
+                <UiButton variant="ghost" size="icon" :title="'ゴミ箱に移動'" @click.prevent="moveToTrash(draft.id)">
                   <Trash2 class="h-4 w-4" />
                 </UiButton>
                 <UiButton variant="ghost" size="icon">
@@ -151,12 +131,7 @@ const moveToTrash = async (draftId: string) => {
         </div>
       </div>
 
-      <UiButton
-        v-if="!loading && draftState.hasNextPage"
-        variant="outline"
-        class="w-full"
-        @click="loadMore"
-      >
+      <UiButton v-if="!loading && draftState.hasNextPage" variant="outline" class="w-full" @click="loadMore">
         もっと見る
       </UiButton>
     </div>

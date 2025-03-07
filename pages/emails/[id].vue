@@ -4,22 +4,14 @@ import { ArrowLeft } from "lucide-vue-next";
 const route = useRoute();
 const emailId = route.params.id as ":id";
 
-const { data: email, status } = await useFetch(`/api/emails/${emailId}`, {
-  lazy: true,
+const { data: email, status } = await useFetch(`/api/emails/${emailId as ":id"}`, {
+  lazy: true
 });
 
 const styleSheet = computed(() =>
   email.value?.isHtml && email.value.styleSheet ? email.value.styleSheet : ""
 );
 useStyleTag(styleSheet);
-
-onMounted(() => {
-  setTimeout(async () => {
-    await $fetch(`/api/emails/${emailId}/mark-as-read`, {
-      method: "POST",
-    });
-  }, 3000);
-});
 
 const contentSkeletonsWidth = [
   "w-24",
@@ -103,6 +95,16 @@ const contentSkeletonsWidth = [
   "w-24",
   "w-40",
 ];
+
+watch(email, (email) => {
+  if (!email?.isRead)
+    setTimeout(async () => {
+      console.log("Marking as read");
+      await $fetch(`/api/emails/${emailId}/mark-as-read`, {
+        method: "POST",
+      });
+    }, 3000);
+});
 </script>
 
 <template>
@@ -149,11 +151,7 @@ const contentSkeletonsWidth = [
           <UiSeparator class="my-4" />
           <UiCardContent>
             <div class="___body-wrapper">
-              <div
-                class="___body"
-                :lang="email.isHtml ? email.lang : undefined"
-                v-html="email.body"
-              />
+              <div class="___body" :lang="email.isHtml ? email.lang : undefined" v-html="email.body" />
             </div>
           </UiCardContent>
         </UiCard>
@@ -167,6 +165,7 @@ const contentSkeletonsWidth = [
   display: grid;
   place-items: center;
 }
+
 .___body * {
   all: revert-layer;
 }
