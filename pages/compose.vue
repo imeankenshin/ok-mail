@@ -100,7 +100,7 @@ const sendEmail = async () => {
       <form class="space-y-4" @submit.prevent="sendEmail">
         <div class="space-y-2">
           <label for="to" class="text-sm font-medium">宛先</label>
-          <UiTagsInput v-model="tags" placeholder="メールアドレスを入力">
+          <UiTagsInput v-model="tags" required>
             <UiTagsInputItem v-for="tag in tags" :key="tag" :value="tag">
               <UiTagsInputItemText>{{ tag }}</UiTagsInputItemText>
               <UiTagsInputItemDelete />
