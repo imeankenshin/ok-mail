@@ -1,39 +1,34 @@
 import { google } from "googleapis";
-import { defineEventHandler, readBody } from "h3";
+import { readBody } from "h3";
 import { tryCatch } from "#shared/utils/error";
+import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
+import { object, string, pipe, minLength, safeParse, array} from "valibot";
 
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-);
+const sendEmailRequestSchema = object({
+  to: array(string()),
+  subject: pipe(string(), minLength(1)),
+  body: pipe(string(), minLength(1)),
+});
 
-export default defineEventHandler(async (event) => {
-  const [{ to, subject, body }, readBodyError] = await tryCatch(() => readBody(event));
+export default defineVerifiedOnlyEventHandler(async (event) => {
+  const body = safeParse(sendEmailRequestSchema, await readBody(event));
 
-  if (readBodyError) {
+  if (!body.success) {
     throw createError({
       statusCode: 400,
       message: "Invalid body",
+      data: body.issues,
     });
   }
 
-  const gmail = google.gmail({ version: "v1", auth: oauth2Client });
-  const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`;
-  const messageParts = [
-    `To: ${to}`,
-    "Content-Type: text/plain; charset=utf-8",
-    "MIME-Version: 1.0",
-    `Subject: ${utf8Subject}`,
-    "",
-    body,
-  ];
-  const message = messageParts.join("\n");
-  const encodedMessage = Buffer.from(message)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+  const gmail = google.gmail({ version: "v1", auth: event.context.oAuth2Client });
+
+  // MIMEメッセージの作成
+  const encodedMessage = encodeMIMEMessage({
+    to: body.output.to,
+    subject: body.output.subject,
+    body: body.output.body
+  });
 
   const [res, sendEmailError] = await tryCatch(() =>
     gmail.users.messages.send({
@@ -44,10 +39,7 @@ export default defineEventHandler(async (event) => {
     })
   );
   if (sendEmailError) {
-    throw createError({
-      statusCode: 500,
-      message: "メールの送信に失敗しました",
-    });
+    throw createError(sendEmailError);
   }
 
   return { success: true, messageId: res.data.id };

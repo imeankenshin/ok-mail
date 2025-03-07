@@ -13,3 +13,15 @@ export interface EmailListResponse {
   hasNextPage: boolean;
   nextPageToken?: string;
 }
+
+export interface EmailDraft {
+  to: string[];
+  subject: string;
+  body: string;
+  draftId?: string | null;
+}
+
+export interface EmailRecipient {
+  email: string;
+  name?: string;
+}

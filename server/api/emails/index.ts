@@ -19,6 +19,7 @@ export default defineVerifiedOnlyEventHandler<
       userId: "me",
       maxResults: limit,
       pageToken: query.pageToken as string,
+      q: "-in:drafts",
     })
   );
 

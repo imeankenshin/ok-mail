@@ -8,6 +8,7 @@ import type {
 import { H3Event } from "h3";
 import { google } from "googleapis";
 import type { OAuth2Client } from "google-auth-library";
+import { tryCatch } from "~/shared/utils/error";
 
 class VerifiedEvent<T extends EventHandlerRequest> extends H3Event<T> {
   declare context: H3EventContext & {
@@ -38,6 +39,7 @@ export function defineVerifiedOnlyEventHandler<
 
     const oauth2Client = new google.auth.OAuth2({
       clientId: process.env.GOOGLE_CLIENT_ID,
+      apiKey: process.env.GOOGLE_API_KEY,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       redirectUri: process.env.GOOGLE_REDIRECT_URI,
     });
@@ -53,36 +55,40 @@ export function defineVerifiedOnlyEventHandler<
       });
     }
 
-    if (new Date() >= account.accessTokenExpiresAt!) {
-      if (!account.refreshToken) {
-        throw createError({
-          statusCode: 401,
-          statusMessage: "Refresh token is required",
-        });
-      }
-
-      oauth2Client.setCredentials({
-        refresh_token: account.refreshToken,
-      });
-
-      const { credentials } = await oauth2Client.refreshAccessToken();
-      await prisma.account.update({
-        where: { id: account.id },
-        data: {
-          accessToken: credentials.access_token!,
-          accessTokenExpiresAt: new Date(
-            Date.now() + (credentials.expiry_date || 0)
-          ),
-        },
-      });
-    }
-
     // 認証情報を設定
     oauth2Client.setCredentials({
       expiry_date: account.accessTokenExpiresAt!.getTime(),
       access_token: account.accessToken,
       refresh_token: account.refreshToken,
     });
+
+    if (new Date() >= account.accessTokenExpiresAt!) {
+      if (!account.refreshToken) {
+        throw createError({
+          statusCode: 401,
+          statusMessage: "Unauthorized",
+        });
+      }
+
+      const [credentials, error] = await tryCatch(() =>
+        oauth2Client.refreshAccessToken().then((res) => res.credentials)
+      );
+
+      if (error) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: "Failed to refresh access token",
+          cause: error,
+        });
+      }
+      await prisma.account.update({
+        where: { id: account.id },
+        data: {
+          accessToken: credentials.access_token!,
+          accessTokenExpiresAt: new Date(credentials.expiry_date || 0),
+        },
+      });
+    }
 
     return handler(createVerifiedEvent(event, oauth2Client, session));
   });
