@@ -3,107 +3,110 @@ import { ArrowLeft } from "lucide-vue-next";
 
 const route = useRoute();
 const emailId = route.params.id as ":id";
+const key = `email-${emailId}`;
 
-const { data: email, status } = await useFetch(`/api/emails/${emailId as ":id"}`, {
-  lazy: true
-});
+const emailsStore = useEmailsStore();
+const email = useState<Awaited<ReturnType<typeof $fetch<unknown, "/api/emails/:id">>> | null>(key,() => null);
+const requestFetch = useRequestFetch()
 
 const styleSheet = computed(() =>
   email.value?.isHtml && email.value.styleSheet ? email.value.styleSheet : ""
 );
 useStyleTag(styleSheet);
 
-const contentSkeletonsWidth = [
-  "w-24",
-  "w-32",
-  "w-16",
-  "w-8",
-  "w-28",
-  "w-16",
-  "w-24",
-  "w-16",
-  "w-16",
-  "w-16",
-  "w-16",
-  "w-20",
-  "w-28",
-  "w-16",
-  "w-48",
-  "w-8",
-  "w-8",
-  "w-16",
-  "w-8",
-  "w-12",
-  "w-8",
-  "w-16",
-  "w-16",
-  "w-8",
-  "w-16",
-  "w-20",
-  "w-8",
-  "w-16",
-  "w-24",
-  "w-16",
-  "w-36",
-  "w-28",
-  "w-20",
-  "w-16",
-  "w-28",
-  "w-28",
-  "w-12",
-  "w-16",
-  "w-28",
-  "w-24",
-  "w-24",
-  "w-16",
-  "w-24",
-  "w-28",
-  "w-16",
-  "w-24",
-  "w-16",
-  "w-24",
-  "w-12",
-  "w-20",
-  "w-28",
-  "w-28",
-  "w-20",
-  "w-36",
-  "w-16",
-  "w-40",
-  "w-8",
-  "w-12",
-  "w-20",
-  "w-20",
-  "w-20",
-  "w-16",
-  "w-8",
-  "w-8",
-  "w-36",
-  "w-28",
-  "w-24",
-  "w-28",
-  "w-36",
-  "w-24",
-  "w-24",
-  "w-8",
-  "w-28",
-  "w-12",
-  "w-16",
-  "w-20",
-  "w-16",
-  "w-16",
-  "w-24",
-  "w-40",
-];
+// const contentSkeletonsWidth = [
+//   "w-24",
+//   "w-32",
+//   "w-16",
+//   "w-8",
+//   "w-28",
+//   "w-16",
+//   "w-24",
+//   "w-16",
+//   "w-16",
+//   "w-16",
+//   "w-16",
+//   "w-20",
+//   "w-28",
+//   "w-16",
+//   "w-48",
+//   "w-8",
+//   "w-8",
+//   "w-16",
+//   "w-8",
+//   "w-12",
+//   "w-8",
+//   "w-16",
+//   "w-16",
+//   "w-8",
+//   "w-16",
+//   "w-20",
+//   "w-8",
+//   "w-16",
+//   "w-24",
+//   "w-16",
+//   "w-36",
+//   "w-28",
+//   "w-20",
+//   "w-16",
+//   "w-28",
+//   "w-28",
+//   "w-12",
+//   "w-16",
+//   "w-28",
+//   "w-24",
+//   "w-24",
+//   "w-16",
+//   "w-24",
+//   "w-28",
+//   "w-16",
+//   "w-24",
+//   "w-16",
+//   "w-24",
+//   "w-12",
+//   "w-20",
+//   "w-28",
+//   "w-28",
+//   "w-20",
+//   "w-36",
+//   "w-16",
+//   "w-40",
+//   "w-8",
+//   "w-12",
+//   "w-20",
+//   "w-20",
+//   "w-20",
+//   "w-16",
+//   "w-8",
+//   "w-8",
+//   "w-36",
+//   "w-28",
+//   "w-24",
+//   "w-28",
+//   "w-36",
+//   "w-24",
+//   "w-24",
+//   "w-8",
+//   "w-28",
+//   "w-12",
+//   "w-16",
+//   "w-20",
+//   "w-16",
+//   "w-16",
+//   "w-24",
+//   "w-40",
+// ];
 
 watch(email, (email) => {
   if (!email?.isRead)
     setTimeout(async () => {
-      console.log("Marking as read");
-      await $fetch(`/api/emails/${emailId}/mark-as-read`, {
-        method: "POST",
-      });
+      await emailsStore.markAsRead(emailId);
     }, 3000);
+});
+
+await callOnce(key, async () => {
+  const data = await requestFetch(`/api/emails/${emailId}`);
+  email.value = data;
 });
 </script>
 
@@ -119,7 +122,7 @@ watch(email, (email) => {
     </header>
 
     <main class="flex-1 p-4">
-      <div v-if="status === 'pending'" class="w-full">
+      <!-- <div v-if="status === 'pending'" class="w-full">
         <UiCard>
           <UiCardHeader>
             <UiSkeleton class="h-4 w-full max-w-sm my-0.5" />
@@ -134,9 +137,9 @@ watch(email, (email) => {
             </div>
           </UiCardContent>
         </UiCard>
-      </div>
+      </div> -->
 
-      <div v-else-if="email" class="space-y-4">
+      <div v-if="email" class="space-y-4">
         <UiCard>
           <UiCardHeader>
             <UiCardTitle>{{ email.subject }}</UiCardTitle>
