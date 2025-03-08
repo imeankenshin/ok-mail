@@ -10,7 +10,6 @@ export interface Email {
 
 export interface EmailListResponse {
   emails: Email[];
-  hasNextPage: boolean;
   nextPageToken?: string;
 }
 

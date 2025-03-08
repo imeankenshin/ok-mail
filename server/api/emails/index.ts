@@ -67,11 +67,9 @@ export default defineVerifiedOnlyEventHandler<
   ).filter((email): email is Email => email !== null);
 
   const nextPageToken = messageList.data.nextPageToken || undefined;
-  const hasNextPage = nextPageToken !== undefined;
 
   const response: EmailListResponse = {
     emails,
-    hasNextPage,
     nextPageToken,
   };
 

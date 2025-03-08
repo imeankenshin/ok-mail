@@ -68,7 +68,6 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
 
   return {
     drafts: drafts.filter(Boolean) as Draft[],
-    hasNextPage: !!response.data.nextPageToken,
-    nextPageToken: response.data.nextPageToken,
+    nextPageToken: response.data.nextPageToken || null,
   };
 });
