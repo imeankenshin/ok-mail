@@ -26,14 +26,17 @@ export function defineVerifiedOnlyEventHandler<
   D
 >(handler: VerifiedEventHandler<T, D>): EventHandler<T, D> {
   return defineEventHandler<T>(async (event) => {
-    const session = await auth.api.getSession({
-      headers: event.headers,
-    });
+    const [session, sessionError] = await tryCatch(() =>
+      auth.api.getSession({
+        headers: event.headers,
+      })
+    );
 
-    if (!session) {
+    if (!session || sessionError) {
       throw createError({
         statusCode: 401,
         statusMessage: "Unauthorized",
+        cause: sessionError,
       });
     }
 
