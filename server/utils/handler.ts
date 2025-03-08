@@ -1,4 +1,4 @@
-import { auth } from "~/lib/auth";
+import { auth } from "@/lib/auth";
 import type {
   EventHandlerRequest,
   EventHandlerResponse,
@@ -9,6 +9,7 @@ import { H3Event } from "h3";
 import { google } from "googleapis";
 import type { OAuth2Client } from "google-auth-library";
 import { tryCatch } from "~/shared/utils/error";
+import prisma from "~/lib/prisma";
 
 class VerifiedEvent<T extends EventHandlerRequest> extends H3Event<T> {
   declare context: H3EventContext & {
@@ -26,18 +27,12 @@ export function defineVerifiedOnlyEventHandler<
   D
 >(handler: VerifiedEventHandler<T, D>): EventHandler<T, D> {
   return defineEventHandler<T>(async (event) => {
-    const [session, sessionError] = await tryCatch(() =>
-      auth.api.getSession({
-        headers: event.headers,
-      })
-    );
+    const session = await auth.api.getSession({
+      headers: event.headers,
+    });
 
-    if (!session || sessionError) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: "Unauthorized",
-        cause: sessionError,
-      });
+    if (!session) {
+      return await sendRedirect(event, "/welcome");
     }
 
     const oauth2Client = new google.auth.OAuth2({
