@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RefreshCw, Plus } from "lucide-vue-next";
+import { signOut } from "@/lib/auth-client";
 
 const refreshEmails = () => {
   // メール更新ロジックをここに実装
