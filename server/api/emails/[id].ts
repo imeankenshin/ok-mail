@@ -46,8 +46,6 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
       userId: "me",
       id,
       format: "full",
-      // 必要なフィールドのみを指定
-      fields: "payload(headers,body,parts(mimeType,body))",
     })
   );
 
@@ -55,6 +53,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     throw createError({
       statusCode: 500,
       message: "メールの取得に失敗しました",
+      cause: error,
     });
   }
 

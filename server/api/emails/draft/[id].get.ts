@@ -67,7 +67,6 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     // シングルパートの場合
     body = Buffer.from(message.payload.body.data, "base64").toString("utf-8");
   }
-  console.log(to);
 
   return {
     to,
