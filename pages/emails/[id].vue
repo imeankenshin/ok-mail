@@ -12,6 +12,8 @@ const requestFetch = useRequestFetch()
 const styleSheet = computed(() =>
   email.value?.isHtml && email.value.styleSheet ? email.value.styleSheet : ""
 );
+
+const timeOutId = ref<ReturnType<typeof setTimeout> | null>(null);
 useStyleTag(styleSheet);
 
 // const contentSkeletonsWidth = [
@@ -99,9 +101,15 @@ useStyleTag(styleSheet);
 
 watch(email, (email) => {
   if (!email?.isRead)
-    setTimeout(async () => {
+    timeOutId.value = setTimeout(async () => {
       await emailsStore.markAsRead(emailId);
     }, 3000);
+});
+
+onBeforeUnmount(() => {
+  if (timeOutId.value) {
+    clearTimeout(timeOutId.value);
+  }
 });
 
 await callOnce(key, async () => {
