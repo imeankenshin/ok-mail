@@ -2,12 +2,20 @@ import { navigateTo } from "#imports";
 import { useSession } from "@/lib/auth-client";
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  const session = useSession();
+  if (!import.meta.server) return
+  const { data: session } = await useSession(useFetch);
 
-  if (!session.value) {
-    if (to.path !== "/welcome") {
-      return navigateTo("/welcome");
+  // Public routes that don't require authentication
+  if (to.path === "/welcome") {
+    if (session.value) {
+      return navigateTo("/");
     }
+    return;
+  }
+
+  // Protected routes
+  if (!session.value) {
+    return navigateTo("/welcome");
   }
 
   return;
