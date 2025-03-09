@@ -2,7 +2,7 @@ import { navigateTo } from "#imports";
 import { useSession } from "@/lib/auth-client";
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { data: session } = await useSession(useFetch);
+  const session = useSession();
 
   if (!session.value) {
     if (to.path !== "/welcome") {
