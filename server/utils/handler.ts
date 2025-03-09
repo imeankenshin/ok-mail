@@ -32,7 +32,10 @@ export function defineVerifiedOnlyEventHandler<
     });
 
     if (!session) {
-      return await sendRedirect(event, "/welcome");
+      throw createError({
+        statusCode: 401,
+        statusMessage: "Unauthorized",
+      });
     }
 
     const oauth2Client = new google.auth.OAuth2({
