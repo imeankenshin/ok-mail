@@ -9,6 +9,7 @@ import { H3Event } from "h3";
 import { google } from "googleapis";
 import type { OAuth2Client } from "google-auth-library";
 import { tryCatch } from "~/shared/utils/error";
+import prisma from "~/lib/prisma";
 
 class VerifiedEvent<T extends EventHandlerRequest> extends H3Event<T> {
   declare context: H3EventContext & {
