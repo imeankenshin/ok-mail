@@ -29,7 +29,7 @@
     "jsdom": "^26.0.0",
     "lucide-vue-next": "^0.476.0",
     "motion-v": "^0.11.3",
-    "nuxt": "^3.15.4",
+    "nuxt": "3.15.4",
     "reka-ui": "^2.0.2",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
@@ -47,6 +47,5 @@
     "shadcn-nuxt": "^1.0.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.7.3"
-  },
-  "packageManager": "pnpm@8.15.3+sha1.64838798f519c18029c1e8a1310e16101fc2eda0"
+  }
 }
