@@ -1,4 +1,4 @@
-import { auth } from "~/lib/auth";
+import { auth } from "@/lib/auth";
 import type {
   EventHandlerRequest,
   EventHandlerResponse,
@@ -27,17 +27,14 @@ export function defineVerifiedOnlyEventHandler<
   D
 >(handler: VerifiedEventHandler<T, D>): EventHandler<T, D> {
   return defineEventHandler<T>(async (event) => {
-    const [session, sessionError] = await tryCatch(() =>
-      auth.api.getSession({
-        headers: event.headers,
-      })
-    );
+    const session = await auth.api.getSession({
+      headers: event.headers,
+    });
 
-    if (!session || sessionError) {
+    if (!session) {
       throw createError({
         statusCode: 401,
         statusMessage: "Unauthorized",
-        cause: sessionError,
       });
     }
 
