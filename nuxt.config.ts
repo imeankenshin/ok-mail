@@ -1,5 +1,6 @@
 import { createRequire } from 'module'
 import path from 'path'
+import "./env";
 
 const { resolve } = createRequire(import.meta.url)
 
@@ -12,6 +13,11 @@ const prismaClientIndexBrowser = resolve('@prisma/client/index-browser').replace
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
+  runtimeConfig: {
+    public: {
+      betterAuthUrl: process.env.NUXT_PUBLIC_BETTER_AUTH_URL,
+    },
+  },
   modules: [
     "@pinia/nuxt",
     "@vueuse/nuxt",

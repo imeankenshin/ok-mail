@@ -10,6 +10,7 @@ import { google } from "googleapis";
 import type { OAuth2Client } from "google-auth-library";
 import { tryCatch } from "~/shared/utils/error";
 import prisma from "~/lib/prisma";
+import { env } from "~/env";
 
 class VerifiedEvent<T extends EventHandlerRequest> extends H3Event<T> {
   declare context: H3EventContext & {
@@ -39,10 +40,10 @@ export function defineVerifiedOnlyEventHandler<
     }
 
     const oauth2Client = new google.auth.OAuth2({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      apiKey: process.env.GOOGLE_API_KEY,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      redirectUri: process.env.GOOGLE_REDIRECT_URI,
+      clientId: env.GOOGLE_CLIENT_ID,
+      apiKey: env.GOOGLE_API_KEY,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      redirectUri: env.GOOGLE_REDIRECT_URI,
     });
 
     const account = await prisma.account.findFirst({
