@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { signOut } from '~/lib/auth-client';
+import { Plus } from 'lucide-vue-next';
 
-const refreshEmails = () => {
-  // メール更新ロジックをここに実装
-  console.log("メールを更新中...");
-};
 </script>
 
 <template>
@@ -16,9 +13,6 @@ const refreshEmails = () => {
           <UiSidebarTrigger />
           <h1 class="ml-4 text-lg font-semibold">OK Mail</h1>
           <div class="ml-auto flex items-center">
-            <UiButton variant="ghost" size="icon" @click="refreshEmails">
-              <RefreshCw class="h-4 w-4" />
-            </UiButton>
             <UiButton variant="ghost" size="icon" as-child>
               <NuxtLink to="/compose">
                 <Plus class="h-4 w-4" />
