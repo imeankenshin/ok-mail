@@ -1,13 +1,13 @@
 import { createAuthClient } from "better-auth/vue";
-export const { signIn, signOut, useSession } = createAuthClient({
-  baseURL: "http://localhost:3000",
+
+export const { signIn, signOut, useSession, $fetch } = createAuthClient({
   fetchOptions: {
-    onError: ({error}) => {
+    onError: ({ error }) => {
       if (error.status === 401) {
         signOut();
-        return
+        return;
       }
       throw showError(error);
     },
-  }
+  },
 });

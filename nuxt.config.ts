@@ -1,5 +1,6 @@
 import { createRequire } from 'module'
 import path from 'path'
+import "./env";
 
 const { resolve } = createRequire(import.meta.url)
 
