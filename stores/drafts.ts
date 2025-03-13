@@ -1,17 +1,17 @@
 import type { Draft } from "~/shared/types/draft";
 
-
-export const useDraftsStore = defineStore('drafts', {
-  state: ()=> ({
+export const useDraftsStore = defineStore("drafts", {
+  state: () => ({
     drafts: [] as Draft[],
     nextPageToken: null as string | null,
-    isPending: false
+    isPending: false,
   }),
   actions: {
     async start(action: () => Promise<void>) {
       this.isPending = true;
-      await action();
-      this.isPending = false;
+      await action().finally(() => {
+        this.isPending = false;
+      });
     },
     async initialize() {
       await this.start(async () => {
@@ -40,13 +40,11 @@ export const useDraftsStore = defineStore('drafts', {
       const onError = () => {
         this.drafts = previousDrafts;
       };
-      await this.start(async () => {
-        await $fetch(`/api/emails/${draftId}/trash`, {
-          method: "POST",
-          onResponseError: onError,
-          onRequestError: onError
-        });
+      await $fetch(`/api/emails/draft/${draftId}`, {
+        method: "DELETE",
+        onResponseError: onError,
+        onRequestError: onError,
       });
     },
-  }
-})
+  },
+});
