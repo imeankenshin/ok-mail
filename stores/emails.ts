@@ -13,8 +13,9 @@ export const useEmailsStore = defineStore('emails', {
   actions: {
     async start(action: () => Promise<void>) {
       this.isPending = true;
-      await action();
-      this.isPending = false;
+      await action().catch(console.error).finally(() => {
+        this.isPending = false;
+      });
     },
     async initialize() {
       await this.start(async () => {

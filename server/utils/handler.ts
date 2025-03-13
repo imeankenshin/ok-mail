@@ -36,6 +36,7 @@ export function defineVerifiedOnlyEventHandler<
       throw createError({
         statusCode: 401,
         statusMessage: "Unauthorized",
+        cause: "No session found",
       });
     }
 
@@ -54,6 +55,7 @@ export function defineVerifiedOnlyEventHandler<
       throw createError({
         statusCode: 401,
         statusMessage: "Unauthorized",
+        cause: "No account found",
       });
     }
 
@@ -69,6 +71,7 @@ export function defineVerifiedOnlyEventHandler<
         throw createError({
           statusCode: 401,
           statusMessage: "Unauthorized",
+          cause: "No refresh token",
         });
       }
 
