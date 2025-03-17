@@ -2,12 +2,22 @@ import { google } from "googleapis";
 import type { EventHandlerRequest } from "h3";
 import type { Email, EmailListResponse } from "#shared/types/email";
 import { tryCatch } from "~/shared/utils/error";
+import { optional, pipe, string, safeParse } from "valibot";
+
+const querySchema = optional(pipe(string()))
 
 export default defineVerifiedOnlyEventHandler<
   EventHandlerRequest,
   EmailListResponse
 >(async (event) => {
   const query = getQuery(event);
+  const { success, output: q } = safeParse(querySchema, query.q);
+  if (!success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid query parameter",
+    });
+  }
   const limit = 10; // Number of emails per page
 
   const gmail = google.gmail({
@@ -19,7 +29,7 @@ export default defineVerifiedOnlyEventHandler<
       userId: "me",
       maxResults: limit,
       pageToken: query.pageToken as string,
-      q: "-in:drafts",
+      q: q || "-in:drafts",
     })
   );
 

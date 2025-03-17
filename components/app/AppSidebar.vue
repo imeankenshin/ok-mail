@@ -24,7 +24,7 @@ const signOut = () => {
             </UiSidebarMenuItem>
             <UiSidebarMenuItem>
               <UiSidebarMenuButton tooltip="送信済み" as-child>
-                <NuxtLink to="/sent">
+                <NuxtLink to="/?q=in:sent">
                   <Send class="mr-2 h-4 w-4" />
                   送信済み
                 </NuxtLink>

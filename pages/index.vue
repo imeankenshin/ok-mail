@@ -1,16 +1,71 @@
 <script setup lang="ts">
 import { User, Trash2, Star } from "lucide-vue-next";
+import type { Email } from "#shared/types/email";
 
-const store = useEmailsStore();
+definePageMeta({
+  key: route => route.query.q as string
+})
+
+const route = useRoute()
+const q = computed(() => route.query.q as string | undefined)
+const emails = useState(`emails-${q.value}`, () => [] as Email[]);
+const nextPageToken = useState(`nextPageToken-${q.value}`, (() => undefined as string | undefined))
 const [start, isPending] = useAsync();
 
-await callOnce("emails", store.initialize);
+const fetchMore = async () => {
+  if (!nextPageToken.value) return;
+
+  await start(async () => {
+    const response = await $fetch(
+      "/api/emails",
+      {
+        query: {
+          pageToken: nextPageToken.value,
+          q: q.value
+        }
+      }
+    );
+    emails.value.push(...response.emails);
+    nextPageToken.value = response.nextPageToken;
+  });
+}
+
+const moveToTrash = async (emailId: string) => {
+  const previousMails = emails.value;
+  emails.value = emails.value.filter((i) => i.id !== emailId);
+  const onError = () => {
+    emails.value = previousMails;
+  };
+  await $fetch(`/api/emails/${emailId}/trash`, {
+    method: "POST",
+    onResponseError: onError,
+    onRequestError: onError
+  });
+}
+
+await callOnce(`emails-${q.value}`, async () => {
+  const requestFetch = useRequestFetch();
+  const response = await requestFetch("/api/emails", {
+    query: {
+      q: q.value
+    },
+    onResponseError: ({ error }) => {
+      if (error) {
+        console.error(error)
+        throw showError(error);
+      }
+    }
+  });
+  emails.value = response.emails;
+  nextPageToken.value = response.nextPageToken;
+});
+
 </script>
 
 <template>
   <div>
-    <div v-if="store.emails.length">
-      <div v-for="email in store.emails" :key="email.id" class="border-b last:border-0">
+    <div v-if="emails.length">
+      <div v-for="email in emails" :key="email.id" class="border-b last:border-0">
         <NuxtLink
           :to="`/emails/${email.id}`"
           class="block p-4 hover:bg-accent transition-colors"
@@ -27,7 +82,7 @@ await callOnce("emails", store.initialize);
               <p class="text-sm text-muted-foreground">{{ email.from }}</p>
             </div>
             <div class="flex items-center space-x-2">
-              <UiButton variant="ghost" size="icon" :title="'ゴミ箱に移動'" @click.prevent="store.moveToTrash(email.id)">
+              <UiButton variant="ghost" size="icon" :title="'ゴミ箱に移動'" @click.prevent="moveToTrash(email.id)">
                 <Trash2 class="h-4 w-4" />
               </UiButton>
               <UiButton variant="ghost" size="icon">
@@ -51,7 +106,7 @@ await callOnce("emails", store.initialize);
       </div>
     </div>
 
-    <UiButton v-else-if="store.nextPageToken" variant="outline" class="w-full" @click="start(store.fetchMore)">
+    <UiButton v-else-if="nextPageToken" variant="outline" class="w-full" @click="start(fetchMore)">
       もっと見る
     </UiButton>
   </div>

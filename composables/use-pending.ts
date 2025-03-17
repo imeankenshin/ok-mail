@@ -1,10 +1,12 @@
 export function useAsync() {
   const isPending = ref(false);
-  const start = (callback: () => Promise<void>) => {
+  const start = async (callback: () => Promise<void>) => {
     isPending.value = true;
-    callback().finally(() => {
+    try {
+      await callback();
+    } finally {
       isPending.value = false;
-    });
+    }
   };
   return [start, isPending] as const;
 }
