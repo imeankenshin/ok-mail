@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import { tryCatch } from "#shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 import type { Draft } from "~/shared/types/draft";
 
 export default defineVerifiedOnlyEventHandler(async (event) => {
@@ -8,7 +8,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     auth: event.context.oAuth2Client,
   });
 
-  const [response, error] = await tryCatch(() =>
+  const { error, data: response } = await tryCatch(
     gmail.users.drafts.list({
       userId: "me",
       maxResults: 20, // 取得する下書きの最大数
@@ -28,7 +28,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
       const draftId = draft.id;
       if (!draftId) return null;
 
-      const [draftDetails, error] = await tryCatch(() =>
+      const { error, data: draftDetails } = await tryCatch(
         gmail.users.drafts.get({
           userId: "me",
           id: draftId,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Loader2 } from "lucide-vue-next";
-import { tryCatch, tryCatchCallback } from "~/shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 import type { EmailDraft } from "~/shared/types/email";
 
 type DraftStatus = "saving" | "saved" | "error" | "idle";
@@ -43,7 +43,7 @@ const saveDraft = async () => {
     draftId: draftId.value,
   };
 
-  const [response, error] = await tryCatch(() =>
+  const { data, error } = await tryCatch(
     $fetch("/api/emails/draft", {
       method: "POST",
       headers: {
@@ -53,11 +53,11 @@ const saveDraft = async () => {
     })
   );
 
-  if (!error) {
-    draftId.value = response.draftId!;
-    draftStatus.value = "saved";
-  } else {
+  if (error) {
     draftStatus.value = "error";
+  } else {
+    draftId.value = data.draftId!;
+    draftStatus.value = "saved";
   }
 
   debounceChangeDraftStatus();
@@ -73,7 +73,7 @@ onBeforeUnmount(() => {
 });
 const sendEmail = async () => {
   sending.value = true;
-  const error = await tryCatchCallback(() =>
+  const { error } = await tryCatch(
     $fetch("/api/emails/send", {
       method: "POST",
       headers: {

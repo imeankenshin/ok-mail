@@ -1,7 +1,7 @@
 import { google } from "googleapis";
 import type { EventHandlerRequest } from "h3";
 import type { Email, EmailListResponse } from "#shared/types/email";
-import { tryCatch } from "~/shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 import { optional, pipe, string, safeParse } from "valibot";
 
 const querySchema = optional(pipe(string()))

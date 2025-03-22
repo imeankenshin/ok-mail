@@ -8,7 +8,7 @@ import type {
 import { H3Event } from "h3";
 import { google } from "googleapis";
 import type { OAuth2Client } from "google-auth-library";
-import { tryCatch } from "~/shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 import prisma from "~/lib/prisma";
 import { env } from "~/env";
 
@@ -75,7 +75,7 @@ export function defineVerifiedOnlyEventHandler<
         });
       }
 
-      const [credentials, error] = await tryCatch(() =>
+      const {data: credentials, error} = await tryCatch(
         oauth2Client.refreshAccessToken().then((res) => res.credentials)
       );
 

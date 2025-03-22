@@ -1,7 +1,7 @@
 // メールを既読にする
 
 import { google } from "googleapis";
-import { tryCatch } from "#shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 
 export default defineVerifiedOnlyEventHandler(async (event) => {
   const emailId = getRouterParam(event, "id");
@@ -16,7 +16,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     version: "v1",
     auth: event.context.oAuth2Client,
   });
-  const [_, error] = await tryCatch(() =>
+  const { error } = await tryCatch(
     gmail.users.messages.modify({
       userId: "me",
       id: emailId,

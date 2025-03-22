@@ -3,7 +3,7 @@ import { google } from "googleapis";
 import { JSDOM } from "jsdom";
 import type { CssAtRuleAST } from "@adobe/css-tools";
 import { parse, stringify } from "@adobe/css-tools";
-import { tryCatch } from "#shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 
 type CommonEmail = {
   from: string;
@@ -41,7 +41,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     auth: event.context.oAuth2Client,
   });
 
-  const [response, error] = await tryCatch(async () =>
+  const { error, data: getResponse } = await tryCatch(
     gmail.users.messages.get({
       userId: "me",
       id,
@@ -57,7 +57,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     });
   }
 
-  const message = response.data;
+  const message = getResponse.data;
   return createGetEmailResponce(message);
 });
 
@@ -116,8 +116,8 @@ function createGetEmailResponce(
       .map((el) => el.textContent)
       .map((text) => {
         if (!text) return null;
-        const [parsed, error] = tryCatch(() => parse(text));
-        if (error) return null;
+        const parsed = (parse(text, {silent: true}));
+        if (parsed.stylesheet.parsingErrors) return null;
         transfrom(parsed.stylesheet);
         return stringify(parsed);
       })
