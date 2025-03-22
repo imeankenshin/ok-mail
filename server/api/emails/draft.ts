@@ -1,7 +1,7 @@
 import type { gmail_v1 } from "googleapis";
 import { google } from "googleapis";
 import { readBody } from "h3";
-import { tryCatch, tryCatchCallback } from "#shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
 import { object, string, safeParse, pipe, nullish, array } from "valibot";
 import consola from "consola";
@@ -33,8 +33,8 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
   // MIMEメッセージの作成
   const encodedMessage = encodeMIMEMessage({
     to: body.output.to,
-    subject: body.output.subject || '',
-    body: body.output.body || ''
+    subject: body.output.subject || "",
+    body: body.output.body || "",
   });
 
   // Create or update draft
@@ -44,11 +44,12 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     },
   };
 
-  const [res, error] = await tryCatch(async () => {
-    const { draftId } = body.output;
+  const { draftId } = body.output;
+  // TODO: This implimentation is **ABSOLUTE TRASH**. I need to fix this later.
+  const { data: res, error } = await tryCatch((async () => {
     if (draftId) {
       // 下書きIDが指定されている場合、まず下書きが存在するか確認する
-      const checkError = await tryCatchCallback(() =>
+      const { error: checkError } = await tryCatch(
         gmail.users.drafts.get({
           userId: "me",
           id: draftId,
@@ -72,14 +73,13 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
           requestBody,
         });
       }
-    } else {
-      // 下書きIDが指定されていない場合は新規作成
-      return await gmail.users.drafts.create({
-        userId: "me",
-        requestBody,
-      });
     }
-  });
+    // 下書きIDが指定されていない場合は新規作成
+    return await gmail.users.drafts.create({
+      userId: "me",
+      requestBody,
+    });
+  })());
   if (error) {
     throw createError(error);
   }

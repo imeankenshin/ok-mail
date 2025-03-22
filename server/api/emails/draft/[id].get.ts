@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import { tryCatch } from "#shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
 import type { EmailDraft } from "#shared/types/email";
 
@@ -17,7 +17,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     auth: event.context.oAuth2Client,
   });
 
-  const [draft, error] = await tryCatch(() =>
+  const { error, data: draft } = await tryCatch(
     gmail.users.drafts
       .get({
         userId: "me",

@@ -1,6 +1,6 @@
 import { google } from "googleapis";
 import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
-import { tryCatch } from "~/shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 
 export default defineVerifiedOnlyEventHandler(async (event) => {
   const emailId = event.context.params?.id;
@@ -16,7 +16,7 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     auth: event.context.oAuth2Client,
   });
 
-  const [_, error] = await tryCatch(() =>
+  const { error } = await tryCatch(
     gmail.users.drafts.delete({
       userId: "me",
       id: emailId,

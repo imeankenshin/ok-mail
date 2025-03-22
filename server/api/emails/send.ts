@@ -1,6 +1,6 @@
 import { google } from "googleapis";
 import { readBody } from "h3";
-import { tryCatch } from "#shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
 import { object, string, pipe, minLength, safeParse, array} from "valibot";
 

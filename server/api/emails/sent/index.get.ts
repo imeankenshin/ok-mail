@@ -1,7 +1,7 @@
 import { google } from "googleapis";
 import type { EventHandlerRequest } from "h3";
 import type { Email, EmailListResponse } from "#shared/types/email";
-import { tryCatch } from "~/shared/utils/error";
+import { tryCatch } from "~/shared/utils/try-catch";
 
 export default defineVerifiedOnlyEventHandler<
   EventHandlerRequest,
@@ -14,7 +14,7 @@ export default defineVerifiedOnlyEventHandler<
     version: "v1",
     auth: event.context.oAuth2Client,
   });
-  const [messageList, error] = await tryCatch(() =>
+  const { error, data: messageList } = await tryCatch(
     gmail.users.messages.list({
       userId: "me",
       maxResults: limit,
