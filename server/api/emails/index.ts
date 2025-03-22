@@ -24,7 +24,7 @@ export default defineVerifiedOnlyEventHandler<
     version: "v1",
     auth: event.context.oAuth2Client,
   });
-  const [messageList, error] = await tryCatch(() =>
+  const { data: messageList, error } = await tryCatch(
     gmail.users.messages.list({
       userId: "me",
       maxResults: limit,
