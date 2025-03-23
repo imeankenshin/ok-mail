@@ -1,10 +1,25 @@
 <script setup lang="ts">
+import consola from 'consola';
+import { useServerClient } from '~/composables/use-server-client';
 import { signIn } from '~/lib/auth-client';
+import { tryCatch } from '~/shared/utils/try-catch';
 
 definePageMeta({
   layout: false,
   middleware: undefined
 })
+
+const client = useServerClient()
+
+onMounted(async () => {
+  const {data, error} = await tryCatch(client.hello.query({text: "world"}))
+  if (error) {
+    consola.error(error)
+    return
+  }
+  consola.log(data)
+});
+
 </script>
 
 <template>
