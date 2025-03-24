@@ -6,6 +6,10 @@ import { updateDraftHandler } from "./update.handler";
 import { ZUpdateDraftInput } from "./update.schema";
 import { ZSendDraftInput } from "./send.schema";
 import { sendDraftHandler } from "./send.handler";
+import { deleteDraftHandler } from "./delete.handler";
+import { ZDeleteDraftInput } from "./delete.schema";
+import { listDraftsHandler } from "./list.handler";
+import { ZListDraftsInput } from "./list.schema";
 
 export const draftRouter = router({
   create: authedProcedure
@@ -17,4 +21,10 @@ export const draftRouter = router({
   send: authedProcedure
     .input(ZSendDraftInput)
     .mutation(sendDraftHandler),
+  delete: authedProcedure
+    .input(ZDeleteDraftInput)
+    .mutation(deleteDraftHandler),
+  list: authedProcedure
+  .input(ZListDraftsInput)
+    .query(listDraftsHandler),
 });
