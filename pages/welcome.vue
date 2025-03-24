@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import consola from 'consola';
-import { useServerClient } from '~/composables/use-server-client';
 import { signIn } from '~/lib/auth-client';
 import { tryCatch } from '~/shared/utils/try-catch';
 
@@ -9,10 +8,10 @@ definePageMeta({
   middleware: undefined
 })
 
-const client = useServerClient()
+const { $trpc } = useNuxtApp()
 
 onMounted(async () => {
-  const {data, error} = await tryCatch(client.hello.query({text: "world"}))
+  const {data, error} = await tryCatch($trpc.hello.query({text: "world"}))
   if (error) {
     consola.error(error)
     return
