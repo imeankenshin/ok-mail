@@ -8,6 +8,8 @@ import { router } from "../../trpc";
 import { authedProcedure } from "../../procedures/auth-procedure";
 import { ZMarkAsReadInputSchema } from "./mark-as-read.schema";
 import { markAsReadHandler } from "./mark-as-read.handler";
+import { ZFindEmailInputSchema } from "./find.schema";
+import { findEmailHandler } from "./find.handler";
 
 export const emailsRouter = router({
   get: authedProcedure
@@ -22,4 +24,7 @@ export const emailsRouter = router({
   markAsRead: authedProcedure
     .input(ZMarkAsReadInputSchema)
     .mutation(markAsReadHandler),
+  find: authedProcedure
+    .input(ZFindEmailInputSchema)
+    .query(findEmailHandler),
 });
