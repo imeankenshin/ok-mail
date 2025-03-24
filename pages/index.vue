@@ -6,6 +6,7 @@ definePageMeta({
   key: route => route.query.q as string
 })
 
+const { $trpc } = useNuxtApp()
 const route = useRoute()
 const q = computed(() => route.query.q as string | undefined)
 const emails = useState(`emails-${q.value}`, () => [] as Email[]);
@@ -44,17 +45,9 @@ const moveToTrash = async (emailId: string) => {
 }
 
 await callOnce(`emails-${q.value}`, async () => {
-  const requestFetch = useRequestFetch();
-  const response = await requestFetch("/api/emails", {
-    query: {
-      q: q.value
-    },
-    onResponseError: ({ error }) => {
-      if (error) {
-        console.error(error)
-        throw showError(error);
-      }
-    }
+  const response = await $trpc.getEmailList.query({
+    q: q.value,
+    pageToken: nextPageToken.value
   });
   emails.value = response.emails;
   nextPageToken.value = response.nextPageToken;
