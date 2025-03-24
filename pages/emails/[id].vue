@@ -5,9 +5,8 @@ const route = useRoute();
 const emailId = route.params.id as ":id";
 const key = `email-${emailId}`;
 
-const emailsStore = useEmailsStore();
-const email = useState<Awaited<ReturnType<typeof $fetch<unknown, "/api/emails/:id">>> | null>(key,() => null);
-const requestFetch = useRequestFetch()
+const { $trpc } = useNuxtApp();
+const email = useState<Awaited<ReturnType<typeof $trpc.emails.find.query>> | null>(key, () => null);
 
 const styleSheet = computed(() =>
   email.value?.isHtml && email.value.styleSheet ? email.value.styleSheet : ""
@@ -102,8 +101,10 @@ useStyleTag(styleSheet);
 watch(email, (email) => {
   if (!email?.isRead)
     timeOutId.value = setTimeout(async () => {
-      await emailsStore.markAsRead(emailId);
-    }, 3000);
+      await $trpc.emails.markAsRead.mutate({
+        id: emailId
+      });
+    }, 2000);
 });
 
 onBeforeUnmount(() => {
@@ -113,7 +114,9 @@ onBeforeUnmount(() => {
 });
 
 await callOnce(key, async () => {
-  const data = await requestFetch(`/api/emails/${emailId}`);
+  const data = await $trpc.emails.find.query({
+    id: emailId
+  });
   email.value = data;
 });
 </script>
@@ -162,6 +165,7 @@ await callOnce(key, async () => {
           <UiSeparator class="my-4" />
           <UiCardContent>
             <div class="___body-wrapper">
+              <!-- eslint-disable-next-line vue/no-v-html -->
               <div class="___body" :lang="email.isHtml ? email.lang : undefined" v-html="email.body" />
             </div>
           </UiCardContent>

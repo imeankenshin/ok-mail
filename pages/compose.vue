@@ -5,6 +5,7 @@ import type { EmailDraft } from "~/shared/types/email";
 
 type DraftStatus = "saving" | "saved" | "error" | "idle";
 
+const { $trpc } = useNuxtApp();
 const router = useRouter();
 const route = useRoute();
 const sending = ref(false);
@@ -36,28 +37,37 @@ const debounceChangeDraftStatus = useDebounceFn(() => {
 }, 3000);
 // 下書き保存処理
 const saveDraft = async () => {
-  draftStatus.value = "saving";
-
   const payload = {
     ...email.value,
-    draftId: draftId.value,
   };
+  const draftIdValue = draftId.value;
+  draftStatus.value = "saving";
 
-  const { data, error } = await tryCatch(
-    $fetch("/api/emails/draft", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-  );
+  if (!draftIdValue) {
+    const { data, error } = await tryCatch(
+      $trpc.drafts.create.mutate(payload)
+    );
 
-  if (error) {
-    draftStatus.value = "error";
+    if (error) {
+      draftStatus.value = "error";
+    } else {
+      draftId.value = data.draftId;
+      draftStatus.value = "saved";
+    }
   } else {
-    draftId.value = data.draftId!;
-    draftStatus.value = "saved";
+    const { data, error } = await tryCatch(
+      $trpc.drafts.update.mutate({
+        ...payload,
+        draftId: draftIdValue
+      })
+    );
+
+    if (error) {
+      draftStatus.value = "error";
+    } else {
+      draftId.value = data.draftId;
+      draftStatus.value = "saved";
+    }
   }
 
   debounceChangeDraftStatus();
@@ -72,14 +82,15 @@ onBeforeUnmount(() => {
   debouncedSaveDraft();
 });
 const sendEmail = async () => {
+  const draftIdValue = draftId.value;
   sending.value = true;
-  const { error } = await tryCatch(
-    $fetch("/api/emails/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(email.value),
+  const { error } = await tryCatch<unknown>(
+    draftIdValue ? $trpc.drafts.send.mutate({
+      draftId: draftIdValue
+    }) : $trpc.emails.send.mutate({
+      to: email.value.to,
+      subject: email.value.subject,
+      body: email.value.body
     })
   );
 
