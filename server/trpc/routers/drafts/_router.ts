@@ -10,6 +10,8 @@ import { deleteDraftHandler } from "./delete.handler";
 import { ZDeleteDraftInput } from "./delete.schema";
 import { listDraftsHandler } from "./list.handler";
 import { ZListDraftsInput } from "./list.schema";
+import { findDraftHandler } from "./find.handler";
+import { ZFindDraftInput } from "./find.schema";
 
 export const draftRouter = router({
   create: authedProcedure
@@ -27,4 +29,7 @@ export const draftRouter = router({
   list: authedProcedure
   .input(ZListDraftsInput)
     .query(listDraftsHandler),
+  find: authedProcedure
+    .input(ZFindDraftInput)
+    .query(findDraftHandler),
 });

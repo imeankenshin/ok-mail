@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Loader2 } from "lucide-vue-next";
 import { tryCatch } from "~/shared/utils/try-catch";
-import type { EmailDraft } from "~/shared/types/email";
 
 type DraftStatus = "saving" | "saved" | "error" | "idle";
 
@@ -13,23 +12,26 @@ const isEdited = ref(false)
 const draftId = ref<string | null>((route.query.draftId as string) || null);
 const draftStatus = ref<DraftStatus>("idle");
 
-const { data: email } = await useFetch<EmailDraft>(
-  `/api/emails/draft/${draftId.value as ":id"}`,
-  {
-    immediate: !!draftId.value,
-    default: () => ({
-      to: [],
-      subject: "",
-      body: "",
-    }),
-  }
-);
+const { data: draft } = useAsyncData(async () => {
+  return await $trpc.drafts.find.query({
+    draftId: draftId.value!
+  })
+}, {
+  immediate: !!draftId.value,
+  default: () => ({
+    to: [],
+    subject: "",
+    body: ""
+  })
+});
 
 // メールアドレスの配列を管理
-const tags = toRef(email.value.to);
+const tags = toRef(draft.value.to || []);
 // タグが変更されたときにメールの宛先を更新
 watch(tags, (newTags) => {
-  email.value.to = newTags.length > 0 ? newTags : [];
+  if (draft.value) {
+    draft.value.to = newTags.length > 0 ? newTags : [];
+  }
 }, { deep: true });
 
 const debounceChangeDraftStatus = useDebounceFn(() => {
@@ -37,8 +39,9 @@ const debounceChangeDraftStatus = useDebounceFn(() => {
 }, 3000);
 // 下書き保存処理
 const saveDraft = async () => {
+  if (!draft.value) return;
   const payload = {
-    ...email.value,
+    ...draft.value,
   };
   const draftIdValue = draftId.value;
   draftStatus.value = "saving";
@@ -75,7 +78,7 @@ const saveDraft = async () => {
 
 const debouncedSaveDraft = useDebounceFn(saveDraft, 1000);
 
-watch(email, () => { isEdited.value = true; debouncedSaveDraft() }, { deep: true });
+watch(draft, () => { isEdited.value = true; debouncedSaveDraft() }, { deep: true });
 
 onBeforeUnmount(() => {
   if (!isEdited.value) return;
@@ -88,9 +91,9 @@ const sendEmail = async () => {
     draftIdValue ? $trpc.drafts.send.mutate({
       draftId: draftIdValue
     }) : $trpc.emails.send.mutate({
-      to: email.value.to,
-      subject: email.value.subject,
-      body: email.value.body
+      to: draft.value.to,
+      subject: draft.value.subject,
+      body: draft.value.body
     })
   );
 
@@ -122,12 +125,12 @@ const sendEmail = async () => {
 
         <div class="space-y-2">
           <label for="subject" class="text-sm font-medium">件名</label>
-          <UiInput id="subject" v-model="email.subject" required type="text" placeholder="件名を入力" />
+          <UiInput id="subject" v-model="draft.subject" required type="text" placeholder="件名を入力" />
         </div>
 
         <div class="space-y-2">
           <label for="body" class="text-sm font-medium">本文</label>
-          <UiTextarea id="body" v-model="email.body" required placeholder="本文を入力" rows="10" />
+          <UiTextarea id="body" v-model="draft.body" required placeholder="本文を入力" rows="10" />
         </div>
 
         <div class="flex justify-between items-center">
