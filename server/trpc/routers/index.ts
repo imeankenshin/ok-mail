@@ -3,6 +3,7 @@ import { protectedProcedure, publicProcedure, router } from '../trpc'
 import { google } from 'googleapis'
 import { tryCatch } from '~/shared/utils/try-catch'
 import type { Email } from '~/shared/types/email'
+import { TRPCError } from '@trpc/server'
 
 export const appRouter = router({
   hello: publicProcedure
@@ -38,7 +39,11 @@ export const appRouter = router({
         );
 
         if (error) {
-          throw new Error("Failed to fetch emails");
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to fetch emails",
+            cause: error,
+          });
         }
 
         const messages = messageList.data.messages || [];
