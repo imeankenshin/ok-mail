@@ -1,9 +1,11 @@
 import { nullish, object, string } from 'valibot'
-import { protectedProcedure, publicProcedure, router } from '../trpc'
+import { router } from '../trpc'
 import { google } from 'googleapis'
 import { tryCatch } from '~/shared/utils/try-catch'
 import type { Email } from '~/shared/types/email'
 import { TRPCError } from '@trpc/server'
+import { authedProcedure } from '../procedures/auth-procedure'
+import { publicProcedure } from '../procedures/public-procedure'
 
 export const appRouter = router({
   hello: publicProcedure
@@ -15,7 +17,7 @@ export const appRouter = router({
     .query(({ input }) => ({
       greeting: `hello ${input?.text ?? 'world'}`,
     })),
-    getEmailList: protectedProcedure
+    getEmailList: authedProcedure
       .input(
         object({
           q: nullish(string()),

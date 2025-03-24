@@ -99,4 +99,4 @@ export const createContext = async (event: H3Event) => {
   };
 };
 
-export type Context = Awaited<ReturnType<typeof createContext>>;
+export type TRPCContext = Awaited<ReturnType<typeof createContext>>;
