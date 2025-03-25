@@ -12,7 +12,7 @@ const route = useRoute()
 const q = computed(() => route.query.q as string | undefined)
 const emails = useState(`emails-${q.value}`, () => [] as Email[]);
 const nextPageToken = useState(`nextPageToken-${q.value}`, (() => undefined as string | undefined))
-const [start, isPending] = useAsync();
+const { start, isPending } = useAsyncFunction();
 
 const fetchMore = async () => {
   if (!nextPageToken.value) return;

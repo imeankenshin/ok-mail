@@ -4,15 +4,9 @@ import { tryCatch } from "~/shared/utils/try-catch";
 export const useDraftsStore = defineStore("drafts", () => {
   const drafts = ref<Draft[]>([]);
   const nextPageToken = ref<string | null>(null);
-  const isPending = ref(false);
   const { $trpc } = useNuxtApp();
+  const { start, isPending } = useAsyncFunction();
 
-  const start = async (action: () => Promise<void>) => {
-    isPending.value = true;
-    await action().finally(() => {
-      isPending.value = false;
-    });
-  };
 
   const initialize = async () => {
     await start(async () => {

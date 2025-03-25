@@ -1,5 +1,6 @@
-export function useAsync() {
+export function useAsyncFunction() {
   const isPending = ref(false);
+  const isReady = computed(() => !isPending.value);
   const start = async (callback: () => Promise<void>) => {
     isPending.value = true;
     try {
@@ -8,5 +9,5 @@ export function useAsync() {
       isPending.value = false;
     }
   };
-  return [start, isPending] as const;
+  return { start, isPending, isReady };
 }
