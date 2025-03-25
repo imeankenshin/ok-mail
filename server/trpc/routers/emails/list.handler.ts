@@ -22,7 +22,7 @@ export const listEmailsHandler = async ({
     gmail.users.messages.list({
       userId: "me",
       maxResults: LIMIT,
-      pageToken: input.pageToken as string,
+      pageToken: input.pageToken,
       q: input.q,
     })
   );

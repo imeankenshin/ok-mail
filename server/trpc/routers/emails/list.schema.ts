@@ -1,9 +1,9 @@
 import type { InferOutput } from "valibot";
-import { nullish, object, string } from "valibot";
+import { optional, object, string } from "valibot";
 
 export const VListEmailsInputSchema = object({
-  q: nullish(string(), "-in:drafts"),
-  pageToken: nullish(string()),
+  q: optional(string(), "-in:drafts"),
+  pageToken: optional(string()),
 });
 
 export type TListEmailsInput = InferOutput<typeof VListEmailsInputSchema>;
