@@ -1,30 +1,30 @@
-import { ZGetEmailInputSchema } from "./get.schema";
+import { VGetEmailInputSchema } from "./get.schema";
 import { getEmailsHandler } from "./get.handler";
-import { ZSendEmailInputSchema } from "./send.schema";
+import { VSendEmailInputSchema } from "./send.schema";
 import { sendEmailHandler } from "./send.handler";
-import { ZTrashEmailInputSchema } from "./trash.schema";
+import { VTrashEmailInputSchema } from "./trash.schema";
 import { trashEmailHandler } from "./trash.handler";
 import { router } from "../../trpc";
 import { authedProcedure } from "../../procedures/auth-procedure";
-import { ZMarkAsReadInputSchema } from "./mark-as-read.schema";
+import { VMarkAsReadInputSchema } from "./mark-as-read.schema";
 import { markAsReadHandler } from "./mark-as-read.handler";
-import { ZFindEmailInputSchema } from "./find.schema";
+import { VFindEmailInputSchema } from "./find.schema";
 import { findEmailHandler } from "./find.handler";
 
 export const emailsRouter = router({
   get: authedProcedure
-    .input(ZGetEmailInputSchema)
+    .input(VGetEmailInputSchema)
     .query(getEmailsHandler),
   send: authedProcedure
-    .input(ZSendEmailInputSchema)
+    .input(VSendEmailInputSchema)
     .mutation(sendEmailHandler),
   trash: authedProcedure
-    .input(ZTrashEmailInputSchema)
+    .input(VTrashEmailInputSchema)
     .mutation(trashEmailHandler),
   markAsRead: authedProcedure
-    .input(ZMarkAsReadInputSchema)
+    .input(VMarkAsReadInputSchema)
     .mutation(markAsReadHandler),
   find: authedProcedure
-    .input(ZFindEmailInputSchema)
+    .input(VFindEmailInputSchema)
     .query(findEmailHandler),
 });

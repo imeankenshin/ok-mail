@@ -1,8 +1,8 @@
 import type { InferOutput } from "valibot";
 import { object, string } from "valibot";
 
-export const ZDeleteDraftInput = object({
+export const VDeleteDraftInputSchema = object({
   draftId: string(),
 });
 
-export type TDeleteDraftInput = InferOutput<typeof ZDeleteDraftInput>;
+export type TDeleteDraftInput = InferOutput<typeof VDeleteDraftInputSchema>;

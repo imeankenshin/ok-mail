@@ -1,35 +1,35 @@
 import { router } from "../../trpc";
 import { createDraftHandler } from "./crate.handler";
 import { authedProcedure } from "../../procedures/auth-procedure";
-import { ZCreateDraftInputSchema } from "./create.schema";
+import { VCreateDraftInputSchema } from "./create.schema";
 import { updateDraftHandler } from "./update.handler";
-import { ZUpdateDraftInput } from "./update.schema";
-import { ZSendDraftInput } from "./send.schema";
+import { VUpdateDraftInputSchema } from "./update.schema";
+import { VSendDraftInputSchema } from "./send.schema";
 import { sendDraftHandler } from "./send.handler";
 import { deleteDraftHandler } from "./delete.handler";
-import { ZDeleteDraftInput } from "./delete.schema";
+import { VDeleteDraftInputSchema } from "./delete.schema";
 import { listDraftsHandler } from "./list.handler";
-import { ZListDraftsInput } from "./list.schema";
+import { VListDraftsInputSchema } from "./list.schema";
 import { findDraftHandler } from "./find.handler";
-import { ZFindDraftInput } from "./find.schema";
+import { VFindDraftInputSchema } from "./find.schema";
 
 export const draftRouter = router({
   create: authedProcedure
-    .input(ZCreateDraftInputSchema)
+    .input(VCreateDraftInputSchema)
     .mutation(createDraftHandler),
   update: authedProcedure
-    .input(ZUpdateDraftInput)
+    .input(VUpdateDraftInputSchema)
     .mutation(updateDraftHandler),
   send: authedProcedure
-    .input(ZSendDraftInput)
+    .input(VSendDraftInputSchema)
     .mutation(sendDraftHandler),
   delete: authedProcedure
-    .input(ZDeleteDraftInput)
+    .input(VDeleteDraftInputSchema)
     .mutation(deleteDraftHandler),
   list: authedProcedure
-  .input(ZListDraftsInput)
+  .input(VListDraftsInputSchema)
     .query(listDraftsHandler),
   find: authedProcedure
-    .input(ZFindDraftInput)
+    .input(VFindDraftInputSchema)
     .query(findDraftHandler),
 });

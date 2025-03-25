@@ -1,8 +1,8 @@
 import type { InferOutput } from "valibot";
 import { object, string, nullish } from "valibot";
 
-export const ZListDraftsInput = object({
+export const VListDraftsInputSchema = object({
   pageToken: nullish(string()),
 });
 
-export type TListDraftsInput = InferOutput<typeof ZListDraftsInput>;
+export type TListDraftsInput = InferOutput<typeof VListDraftsInputSchema>;
