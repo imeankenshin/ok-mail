@@ -6,6 +6,7 @@ import { parse, stringify } from "@adobe/css-tools";
 import { tryCatch } from "~/shared/utils/try-catch";
 import type { OAuth2Client } from "google-auth-library";
 import type { TFindEmailInput } from "./find.schema";
+import { TRPCError } from "@trpc/server";
 
 type CommonEmail = {
   from: string;
@@ -29,21 +30,13 @@ type PlainEmail = CommonEmail & {
 
 type GetEmailResponce = PlainEmail | HTMLEmail;
 
-export const findEmailHandler = (async ({
+export const findEmailHandler = async ({
   input,
-  ctx
+  ctx,
 }: {
   input: TFindEmailInput;
   ctx: { oauth2Client: OAuth2Client };
 }) => {
-  const id = input.id;
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      message: "無効なメールIDです",
-    });
-  }
-
   const gmail = google.gmail({
     version: "v1",
     auth: ctx.oauth2Client,
@@ -52,22 +45,22 @@ export const findEmailHandler = (async ({
   const { error, data: getResponse } = await tryCatch(
     gmail.users.messages.get({
       userId: "me",
-      id,
+      id: input.id,
       format: "full",
     })
   );
 
   if (error) {
-    throw createError({
-      statusCode: 500,
-      message: "メールの取得に失敗しました",
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to fetch email",
       cause: error,
     });
   }
 
   const message = getResponse.data;
   return createGetEmailResponce(message);
-});
+};
 
 function getContent(message: gmail_v1.Schema$Message): string {
   if (message?.payload?.parts) {
@@ -124,7 +117,7 @@ function createGetEmailResponce(
       .map((el) => el.textContent)
       .map((text) => {
         if (!text) return null;
-        const parsed = (parse(text, {silent: true}));
+        const parsed = parse(text, { silent: true });
         if (parsed.stylesheet.parsingErrors) return null;
         transfrom(parsed.stylesheet);
         return stringify(parsed);

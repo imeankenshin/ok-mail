@@ -11,14 +11,6 @@ export const trashEmailHandler = async ({
   input: TTrashEmailInput;
   ctx: { oauth2Client: OAuth2Client };
 }) => {
-  const emailId = input.id;
-  if (!emailId) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "Invalid email ID",
-    });
-  }
-
   const gmail = google.gmail({
     version: "v1",
     auth: ctx.oauth2Client,
@@ -27,7 +19,7 @@ export const trashEmailHandler = async ({
   const { error } = await tryCatch(
     gmail.users.messages.trash({
       userId: "me",
-      id: emailId,
+      id: input.id,
     })
   );
 

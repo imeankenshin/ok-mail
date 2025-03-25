@@ -14,7 +14,6 @@ export const getEmailsHandler = async ({
   input: TGetEmailInput;
   ctx: { oauth2Client: OAuth2Client };
 }) => {
-
   const gmail = google.gmail({
     version: "v1",
     auth: ctx.oauth2Client,

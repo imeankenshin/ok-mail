@@ -12,14 +12,6 @@ export const markAsReadHandler = async ({
   input: TMarkAsReadInput;
   ctx: { oauth2Client: OAuth2Client };
 }) => {
-  const emailId = input.id;
-  if (!emailId) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "Invalid email ID",
-    });
-  }
-
   const gmail = google.gmail({
     version: "v1",
     auth: ctx.oauth2Client,
@@ -27,7 +19,7 @@ export const markAsReadHandler = async ({
   const { error } = await tryCatch(
     gmail.users.messages.modify({
       userId: "me",
-      id: emailId,
+      id: input.id,
       requestBody: {
         removeLabelIds: ["UNREAD"],
       },
