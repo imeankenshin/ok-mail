@@ -1,5 +1,5 @@
 import { router } from "../../trpc";
-import { createDraftHandler } from "./crate.handler";
+import { createDraftHandler } from "./create.handler";
 import { authedProcedure } from "../../procedures/auth-procedure";
 import { VCreateDraftInputSchema } from "./create.schema";
 import { updateDraftHandler } from "./update.handler";
