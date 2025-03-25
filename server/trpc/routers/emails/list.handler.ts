@@ -23,7 +23,7 @@ export const listEmailsHandler = async ({
       userId: "me",
       maxResults: LIMIT,
       pageToken: input.pageToken as string,
-      q: input.q || "-in:drafts",
+      q: input.q,
     })
   );
 

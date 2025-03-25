@@ -2,7 +2,7 @@ import type { InferOutput } from "valibot";
 import { nullish, object, string } from "valibot";
 
 export const VListEmailsInputSchema = object({
-  q: nullish(string()),
+  q: nullish(string(), "-in:drafts"),
   pageToken: nullish(string()),
 });
 
