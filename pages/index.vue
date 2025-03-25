@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { User, Trash2, Star } from "lucide-vue-next";
 import type { Email } from "#shared/types/email";
+import { tryCatch } from "#shared/utils/try-catch";
 
 definePageMeta({
   key: route => route.query.q as string
 })
 
+const { $trpc } = useNuxtApp()
 const route = useRoute()
 const q = computed(() => route.query.q as string | undefined)
 const emails = useState(`emails-${q.value}`, () => [] as Email[]);
@@ -16,15 +18,10 @@ const fetchMore = async () => {
   if (!nextPageToken.value) return;
 
   await start(async () => {
-    const response = await $fetch(
-      "/api/emails",
-      {
-        query: {
-          pageToken: nextPageToken.value,
-          q: q.value
-        }
-      }
-    );
+    const response = await $trpc.emails.list.query({
+      q: q.value,
+      pageToken: nextPageToken.value
+    });
     emails.value.push(...response.emails);
     nextPageToken.value = response.nextPageToken;
   });
@@ -33,28 +30,20 @@ const fetchMore = async () => {
 const moveToTrash = async (emailId: string) => {
   const previousMails = emails.value;
   emails.value = emails.value.filter((i) => i.id !== emailId);
-  const onError = () => {
+  const { error } = await tryCatch(
+    $trpc.emails.trash.mutate({
+      id: emailId
+    })
+  );
+  if (error) {
     emails.value = previousMails;
-  };
-  await $fetch(`/api/emails/${emailId}/trash`, {
-    method: "POST",
-    onResponseError: onError,
-    onRequestError: onError
-  });
+  }
 }
 
 await callOnce(`emails-${q.value}`, async () => {
-  const requestFetch = useRequestFetch();
-  const response = await requestFetch("/api/emails", {
-    query: {
-      q: q.value
-    },
-    onResponseError: ({ error }) => {
-      if (error) {
-        console.error(error)
-        throw showError(error);
-      }
-    }
+  const response = await $trpc.emails.list.query({
+    q: q.value,
+    pageToken: nextPageToken.value
   });
   emails.value = response.emails;
   nextPageToken.value = response.nextPageToken;

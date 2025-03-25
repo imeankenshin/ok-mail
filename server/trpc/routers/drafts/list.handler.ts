@@ -1,24 +1,34 @@
 import { google } from "googleapis";
 import { tryCatch } from "~/shared/utils/try-catch";
 import type { Draft } from "~/shared/types/draft";
+import type { OAuth2Client } from "google-auth-library";
+import { TRPCError } from "@trpc/server";
+import type { TListDraftsInput } from "./list.schema";
 
-export default defineVerifiedOnlyEventHandler(async (event) => {
+export const listDraftsHandler = async ({
+  ctx,
+  input,
+}: {
+  ctx: { oauth2Client: OAuth2Client };
+  input: TListDraftsInput;
+}) => {
   const gmail = google.gmail({
     version: "v1",
-    auth: event.context.oAuth2Client,
+    auth: ctx.oauth2Client,
   });
 
   const { error, data: response } = await tryCatch(
     gmail.users.drafts.list({
       userId: "me",
-      maxResults: 20, // 取得する下書きの最大数
+      maxResults: 10, // 取得する下書きの最大数
+      pageToken: input.pageToken ?? undefined,
     })
   );
 
   if (error) {
-    throw createError({
-      statusCode: 500,
-      message: "下書きの一覧取得に失敗しました",
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to list drafts",
       cause: error,
     });
   }
@@ -37,8 +47,8 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
       );
 
       if (error) {
-        throw createError({
-          statusCode: 500,
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
           message: `Failed to get draft`,
           cause: error,
         });
@@ -70,4 +80,4 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     drafts: drafts.filter(Boolean) as Draft[],
     nextPageToken: response.data.nextPageToken || null,
   };
-});
+};

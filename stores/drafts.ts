@@ -1,50 +1,65 @@
 import type { Draft } from "~/shared/types/draft";
+import { tryCatch } from "~/shared/utils/try-catch";
 
-export const useDraftsStore = defineStore("drafts", {
-  state: () => ({
-    drafts: [] as Draft[],
-    nextPageToken: null as string | null,
-    isPending: false,
-  }),
-  actions: {
-    async start(action: () => Promise<void>) {
-      this.isPending = true;
-      await action().finally(() => {
-        this.isPending = false;
-      });
-    },
-    async initialize() {
-      await this.start(async () => {
-        const requestFetch = useRequestFetch();
-        const response = await requestFetch("/api/emails/draft");
-        this.drafts = response.drafts;
-        this.nextPageToken = response.nextPageToken;
-      });
-    },
+export const useDraftsStore = defineStore("drafts", () => {
+  const drafts = ref<Draft[]>([]);
+  const nextPageToken = ref<string | null>(null);
+  const isPending = ref(false);
+  const { $trpc } = useNuxtApp();
 
-    async fetchMore() {
-      if (!this.nextPageToken) return;
+  const start = async (action: () => Promise<void>) => {
+    isPending.value = true;
+    await action().finally(() => {
+      isPending.value = false;
+    });
+  };
 
-      await this.start(async () => {
-        const response = await $fetch(
-          `/api/emails/draft?pageToken=${this.nextPageToken}`
-        );
-        this.drafts.push(...response.drafts);
-        this.nextPageToken = response.nextPageToken;
-      });
-    },
+  const initialize = async () => {
+    await start(async () => {
+      const response = await $trpc.drafts.list.query({});
+      drafts.value = response.drafts;
+      nextPageToken.value = response.nextPageToken;
+    });
+  };
 
-    async moveToTrash(draftId: string) {
-      const previousDrafts = this.drafts;
-      this.drafts = this.drafts.filter((i) => i.id !== draftId);
-      const onError = () => {
-        this.drafts = previousDrafts;
-      };
-      await $fetch(`/api/emails/draft/${draftId}`, {
-        method: "DELETE",
-        onResponseError: onError,
-        onRequestError: onError,
+  const fetchMore = async () => {
+    const pageToken = nextPageToken.value;
+    if (!pageToken) return;
+
+    await start(async () => {
+      const response = await $trpc.drafts.list.query({
+        pageToken,
       });
-    },
-  },
+      drafts.value.push(...response.drafts);
+      nextPageToken.value = response.nextPageToken;
+    });
+  };
+
+  const trash = async (draftId: string) => {
+    const previousDrafts = [...drafts.value];
+    drafts.value = drafts.value.filter((i) => i.id !== draftId);
+    const onError = () => {
+      drafts.value = previousDrafts;
+    };
+
+    const { error } = await tryCatch(
+      $trpc.drafts.delete.mutate({
+        draftId,
+      })
+    );
+
+    if (error) {
+      onError();
+    }
+  };
+
+  return {
+    drafts,
+    nextPageToken,
+    isPending,
+    start,
+    initialize,
+    fetchMore,
+    trash,
+  };
 });

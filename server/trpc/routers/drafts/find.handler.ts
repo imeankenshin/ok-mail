@@ -1,36 +1,33 @@
 import { google } from "googleapis";
 import { tryCatch } from "~/shared/utils/try-catch";
-import { defineVerifiedOnlyEventHandler } from "~/server/utils/handler";
 import type { EmailDraft } from "#shared/types/email";
+import type { OAuth2Client } from "google-auth-library";
+import type { TFindDraftInput } from "./find.schema";
+import { TRPCError } from "@trpc/server";
 
-export default defineVerifiedOnlyEventHandler(async (event) => {
-  const id = getRouterParam(event, "id");
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      message: "無効な下書きIDです",
-    });
-  }
-
-  const gmail = google.gmail({
-    version: "v1",
-    auth: event.context.oAuth2Client,
-  });
+export const findDraftHandler = async ({
+  input,
+  ctx,
+}: {
+  input: TFindDraftInput;
+  ctx: { oauth2Client: OAuth2Client };
+}) => {
+  const gmail = google.gmail({ version: "v1", auth: ctx.oauth2Client });
 
   const { error, data: draft } = await tryCatch(
     gmail.users.drafts
       .get({
         userId: "me",
-        id,
+        id: input.draftId,
         format: "full",
       })
       .then((res) => res.data)
   );
 
   if (error) {
-    throw createError({
-      statusCode: 500,
-      message: "下書きの取得に失敗しました",
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to find draft",
       cause: error,
     });
   }
@@ -38,9 +35,9 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
   const message = draft.message;
 
   if (!message || !message.payload) {
-    throw createError({
-      statusCode: 500,
-      message: "下書きのメッセージが見つかりませんでした",
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Draft not found",
     });
   }
 
@@ -72,6 +69,5 @@ export default defineVerifiedOnlyEventHandler(async (event) => {
     to,
     subject,
     body,
-    draftId: id,
   } satisfies EmailDraft;
-});
+};

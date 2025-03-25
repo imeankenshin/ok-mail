@@ -1,10 +1,24 @@
 <script setup lang="ts">
+import consola from 'consola';
 import { signIn } from '~/lib/auth-client';
+import { tryCatch } from '~/shared/utils/try-catch';
 
 definePageMeta({
   layout: false,
   middleware: undefined
 })
+
+const { $trpc } = useNuxtApp()
+
+onMounted(async () => {
+  const {data, error} = await tryCatch($trpc.hello.query({text: "world"}))
+  if (error) {
+    consola.error(error)
+    return
+  }
+  consola.log(data)
+});
+
 </script>
 
 <template>

@@ -24,7 +24,7 @@ await callOnce('drafts', store.initialize);
               <p class="text-sm text-red-500">下書き</p>
             </div>
             <div class="flex items-center space-x-2">
-              <UiButton variant="ghost" size="icon" :title="'ゴミ箱に移動'" @click.prevent="store.moveToTrash(draft.id)">
+              <UiButton variant="ghost" size="icon" :title="'ゴミ箱に移動'" @click.prevent="store.trash(draft.id)">
                 <Trash2 class="h-4 w-4" />
               </UiButton>
               <UiButton variant="ghost" size="icon">

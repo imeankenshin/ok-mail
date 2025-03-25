@@ -1,42 +1,37 @@
+import { TRPCError } from "@trpc/server";
 import { google } from "googleapis";
-import type { EventHandlerRequest } from "h3";
-import type { Email, EmailListResponse } from "#shared/types/email";
-import { tryCatch } from "~/shared/utils/try-catch";
-import { optional, pipe, string, safeParse } from "valibot";
+import type { Email } from "#shared/types/email";
+import { tryCatch } from "#shared/utils/try-catch";
+import type { OAuth2Client } from "google-auth-library";
+import type { TListEmailsInput } from "./list.schema";
 
-const querySchema = optional(pipe(string()))
+const LIMIT = 10; // Number of emails per page
 
-export default defineVerifiedOnlyEventHandler<
-  EventHandlerRequest,
-  EmailListResponse
->(async (event) => {
-  const query = getQuery(event);
-  const { success, output: q } = safeParse(querySchema, query.q);
-  if (!success) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid query parameter",
-    });
-  }
-  const limit = 10; // Number of emails per page
-
+export const listEmailsHandler = async ({
+  input,
+  ctx,
+}: {
+  input: TListEmailsInput;
+  ctx: { oauth2Client: OAuth2Client };
+}) => {
   const gmail = google.gmail({
     version: "v1",
-    auth: event.context.oAuth2Client,
+    auth: ctx.oauth2Client,
   });
   const { data: messageList, error } = await tryCatch(
     gmail.users.messages.list({
       userId: "me",
-      maxResults: limit,
-      pageToken: query.pageToken as string,
-      q: q || "-in:drafts",
+      maxResults: LIMIT,
+      pageToken: input.pageToken,
+      q: input.q,
     })
   );
 
   if (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Failed to fetch emails",
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to fetch emails",
+      cause: error,
     });
   }
 
@@ -78,10 +73,10 @@ export default defineVerifiedOnlyEventHandler<
 
   const nextPageToken = messageList.data.nextPageToken || undefined;
 
-  const response: EmailListResponse = {
+  const response = {
     emails,
     nextPageToken,
   };
 
   return response;
-});
+};
