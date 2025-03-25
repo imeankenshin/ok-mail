@@ -18,7 +18,7 @@ const fetchMore = async () => {
   if (!nextPageToken.value) return;
 
   await start(async () => {
-    const response = await $trpc.emails.get.query({
+    const response = await $trpc.emails.list.query({
       q: q.value,
       pageToken: nextPageToken.value
     });
@@ -41,7 +41,7 @@ const moveToTrash = async (emailId: string) => {
 }
 
 await callOnce(`emails-${q.value}`, async () => {
-  const response = await $trpc.emails.get.query({
+  const response = await $trpc.emails.list.query({
     q: q.value,
     pageToken: nextPageToken.value
   });

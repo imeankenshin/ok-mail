@@ -1,5 +1,5 @@
-import { VGetEmailInputSchema } from "./get.schema";
-import { getEmailsHandler } from "./get.handler";
+import { VListEmailsInputSchema } from "./list.schema";
+import { listEmailsHandler } from "./list.handler";
 import { VSendEmailInputSchema } from "./send.schema";
 import { sendEmailHandler } from "./send.handler";
 import { VTrashEmailInputSchema } from "./trash.schema";
@@ -12,9 +12,9 @@ import { VFindEmailInputSchema } from "./find.schema";
 import { findEmailHandler } from "./find.handler";
 
 export const emailsRouter = router({
-  get: authedProcedure
-    .input(VGetEmailInputSchema)
-    .query(getEmailsHandler),
+  list: authedProcedure
+    .input(VListEmailsInputSchema)
+    .query(listEmailsHandler),
   send: authedProcedure
     .input(VSendEmailInputSchema)
     .mutation(sendEmailHandler),

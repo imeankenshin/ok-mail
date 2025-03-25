@@ -3,15 +3,15 @@ import { google } from "googleapis";
 import type { Email } from "#shared/types/email";
 import { tryCatch } from "#shared/utils/try-catch";
 import type { OAuth2Client } from "google-auth-library";
-import type { TGetEmailInput } from "./get.schema";
+import type { TListEmailsInput } from "./list.schema";
 
 const LIMIT = 10; // Number of emails per page
 
-export const getEmailsHandler = async ({
+export const listEmailsHandler = async ({
   input,
   ctx,
 }: {
-  input: TGetEmailInput;
+  input: TListEmailsInput;
   ctx: { oauth2Client: OAuth2Client };
 }) => {
   const gmail = google.gmail({
