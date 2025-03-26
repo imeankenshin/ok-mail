@@ -43,9 +43,10 @@ const moveToTrash = async (emailId: string) => {
 const markAsStarred = async (emailId: string) => {
   const email = emails.value.find((i) => i.id === emailId);
   if (!email) return;
+  const mutation = email.isStarred ? $trpc.emails.unstar.mutate : $trpc.emails.star.mutate;
   email.isStarred = !email.isStarred;
   const { error } = await tryCatch(
-    $trpc.emails.star.mutate({
+    mutation({
       id: emailId
     })
   );
