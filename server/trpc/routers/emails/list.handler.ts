@@ -55,6 +55,7 @@ export const listEmailsHandler = async ({
         const from = headers?.find((h) => h.name === "From")?.value;
         const date = headers?.find((h) => h.name === "Date")?.value;
         const isRead = !email.data.labelIds?.includes("UNREAD");
+        const isStarred = !!email.data.labelIds?.includes("STARRED");
 
         const emailData: Email = {
           id: email.data.id,
@@ -64,6 +65,7 @@ export const listEmailsHandler = async ({
           snippet: email.data.snippet || "",
           date: date || "",
           isRead,
+          isStarred,
         };
 
         return emailData;

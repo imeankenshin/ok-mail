@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Mail, Send, FileText, LogOut } from "lucide-vue-next";
+import { Mail, Send, FileText, LogOut, Star } from "lucide-vue-next";
 const emit = defineEmits(["logout"]);
 
 const signOut = () => {
@@ -19,6 +19,14 @@ const signOut = () => {
                 <NuxtLink to="/">
                   <Mail class="mr-2 h-4 w-4" />
                   受信トレイ
+                </NuxtLink>
+              </UiSidebarMenuButton>
+            </UiSidebarMenuItem>
+            <UiSidebarMenuItem>
+              <UiSidebarMenuButton tooltip="スター付き" as-child>
+                <NuxtLink to="/?q=in:starred">
+                  <Star class="mr-2 h-4 w-4" />
+                  スター付き
                 </NuxtLink>
               </UiSidebarMenuButton>
             </UiSidebarMenuItem>

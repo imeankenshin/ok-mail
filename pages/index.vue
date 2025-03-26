@@ -40,6 +40,21 @@ const moveToTrash = async (emailId: string) => {
   }
 }
 
+const markAsStarred = async (emailId: string) => {
+  const email = emails.value.find((i) => i.id === emailId);
+  if (!email) return;
+  const mutation = email.isStarred ? $trpc.emails.unstar.mutate : $trpc.emails.star.mutate;
+  email.isStarred = !email.isStarred;
+  const { error } = await tryCatch(
+    mutation({
+      id: emailId
+    })
+  );
+  if (error) {
+    email.isStarred = !email.isStarred;
+  }
+}
+
 await callOnce(`emails-${q.value}`, async () => {
   const response = await $trpc.emails.list.query({
     q: q.value,
@@ -74,8 +89,8 @@ await callOnce(`emails-${q.value}`, async () => {
               <UiButton variant="ghost" size="icon" :title="'ゴミ箱に移動'" @click.prevent="moveToTrash(email.id)">
                 <Trash2 class="h-4 w-4" />
               </UiButton>
-              <UiButton variant="ghost" size="icon">
-                <Star class="h-4 w-4" />
+              <UiButton variant="ghost" size="icon" :title="'星'" @click.prevent="markAsStarred(email.id)">
+                <Star class="h-4 w-4" :class="{ 'text-yellow-500': email.isStarred }" />
               </UiButton>
             </div>
           </div>

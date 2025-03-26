@@ -10,6 +10,10 @@ import { VMarkAsReadInputSchema } from "./mark-as-read.schema";
 import { markAsReadHandler } from "./mark-as-read.handler";
 import { VFindEmailInputSchema } from "./find.schema";
 import { findEmailHandler } from "./find.handler";
+import { VStarInputSchema } from "./star.schema";
+import { starHandler } from "./star.handler";
+import { VUnstarInputSchema } from "./unstar.schema";
+import { unstarHandler } from "./unstar.handler";
 
 export const emailsRouter = router({
   list: authedProcedure
@@ -24,7 +28,14 @@ export const emailsRouter = router({
   markAsRead: authedProcedure
     .input(VMarkAsReadInputSchema)
     .mutation(markAsReadHandler),
+  star: authedProcedure
+    .input(VStarInputSchema)
+    .mutation(starHandler),
+  unstar: authedProcedure
+    .input(VUnstarInputSchema)
+    .mutation(unstarHandler),
   find: authedProcedure
     .input(VFindEmailInputSchema)
     .query(findEmailHandler),
+
 });
