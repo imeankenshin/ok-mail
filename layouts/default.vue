@@ -2,11 +2,18 @@
 import { signOut } from '~/lib/auth-client';
 import { Plus } from 'lucide-vue-next';
 
+const router = useRouter();
+
+const logOut = async () => {
+  await signOut();
+  router.replace('/welcome');
+};
 </script>
+
 
 <template>
   <UiSidebarProvider>
-    <AppSidebar @logout="signOut()" />
+    <AppSidebar @logout="logOut()" />
     <div class="min-h-screen bg-background w-full">
       <header class="border-b sticky inset-0 bg-background">
         <div class="flex h-16 items-center px-4">
