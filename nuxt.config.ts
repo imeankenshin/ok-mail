@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "@prisma/nuxt",
     "@nuxt/icon",
+    "@nuxthub/core",
   ],
   eslint: {},
   css: ["@/assets/css/tailwind.css"],
