@@ -77,6 +77,9 @@ await callOnce(`emails-${q.value}`, async () => {
         >
           <div class="flex items-center space-x-4">
             <UiAvatar>
+              <!-- Display BIMI logo if available -->
+              <UiAvatarImage :src="email.bimiLogoUrl ?? ''" :alt="email.from ?? 'Sender Logo'" />
+              <!-- Fallback icon -->
               <UiAvatarFallback>
                 <User class="h-4 w-4" />
               </UiAvatarFallback>

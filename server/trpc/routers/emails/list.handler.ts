@@ -4,8 +4,20 @@ import type { Email } from "#shared/types/email";
 import { tryCatch } from "#shared/utils/try-catch";
 import type { OAuth2Client } from "google-auth-library";
 import type { TListEmailsInput } from "./list.schema";
+import { getBimiLogoUrl } from '../../../utils/getBimiLogo'; // Import BIMI util
+import consola from "consola";
 
 const LIMIT = 10; // Number of emails per page
+
+// Helper function to extract domain from 'From' header
+function extractDomainFromFromHeader(fromHeader: string | undefined | null): string | null {
+  if (!fromHeader) return null;
+  // Match email address in <> or standalone
+  const emailMatch = fromHeader.match(/<([^>]+)>/);
+  const address = emailMatch ? emailMatch[1] : fromHeader.split(' ').pop(); // Simplistic fallback
+  if (!address || !address.includes('@')) return null;
+  return address.split('@')[1];
+}
 
 export const listEmailsHandler = async ({
   input,
@@ -57,6 +69,7 @@ export const listEmailsHandler = async ({
         const isRead = !email.data.labelIds?.includes("UNREAD");
         const isStarred = !!email.data.labelIds?.includes("STARRED");
 
+        const domain = extractDomainFromFromHeader(from);
         const emailData: Email = {
           id: email.data.id,
           threadId: email.data.threadId || "",
@@ -66,8 +79,18 @@ export const listEmailsHandler = async ({
           date: date || "",
           isRead,
           isStarred,
+          bimiLogoUrl: undefined,
         };
-
+        if (domain) {
+          const { data: bimiLogoUrl, error } = await getBimiLogoUrl(domain);
+          if (error) {
+            // エラーをログに記録するだけで、メール一覧の取得は継続する
+            consola.error(`BIMI logo fetch error for ${domain}:`, error);
+            // bimiLogoUrlはundefinedのままになる
+          } else {
+            emailData.bimiLogoUrl = bimiLogoUrl ?? undefined;
+          }
+        }
         return emailData;
       })
     )
