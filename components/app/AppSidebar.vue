@@ -47,10 +47,27 @@ const signOut = () => {
               </UiSidebarMenuButton>
             </UiSidebarMenuItem>
             <UiSidebarMenuItem>
-              <UiSidebarMenuButton tooltip="ログアウト" @click="signOut()">
-                <LogOut class="mr-2 h-4 w-4" />
-                ログアウト
-              </UiSidebarMenuButton>
+              <UiDialog>
+                <UiDialogTrigger as-child>
+                  <UiSidebarMenuButton tooltip="ログアウト">
+                    <LogOut class="mr-2 h-4 w-4" />
+                    ログアウト
+                  </UiSidebarMenuButton>
+                </UiDialogTrigger>
+                <UiDialogContent>
+                  <UiDialogHeader>
+                    <UiDialogTitle>ログアウト</UiDialogTitle>
+                    <UiDialogDescription>
+                      本当にログアウトしますか？
+                    </UiDialogDescription>
+                  </UiDialogHeader>
+                  <UiDialogFooter>
+                    <UiButton variant="destructive" @click="signOut()">
+                      ログアウト
+                    </UiButton>
+                  </UiDialogFooter>
+                </UiDialogContent>
+              </UiDialog>
             </UiSidebarMenuItem>
           </UiSidebarMenu>
         </UiSidebarGroupContent>
