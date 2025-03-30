@@ -16,26 +16,15 @@ import { VUnstarInputSchema } from "./unstar.schema";
 import { unstarHandler } from "./unstar.handler";
 
 export const emailsRouter = router({
-  list: authedProcedure
-    .input(VListEmailsInputSchema)
-    .query(listEmailsHandler),
-  send: authedProcedure
-    .input(VSendEmailInputSchema)
-    .mutation(sendEmailHandler),
+  list: authedProcedure.input(VListEmailsInputSchema).query(listEmailsHandler),
+  send: authedProcedure.input(VSendEmailInputSchema).mutation(sendEmailHandler),
   trash: authedProcedure
     .input(VTrashEmailInputSchema)
     .mutation(trashEmailHandler),
   markAsRead: authedProcedure
     .input(VMarkAsReadInputSchema)
     .mutation(markAsReadHandler),
-  star: authedProcedure
-    .input(VStarInputSchema)
-    .mutation(starHandler),
-  unstar: authedProcedure
-    .input(VUnstarInputSchema)
-    .mutation(unstarHandler),
-  find: authedProcedure
-    .input(VFindEmailInputSchema)
-    .query(findEmailHandler),
-
+  star: authedProcedure.input(VStarInputSchema).mutation(starHandler),
+  unstar: authedProcedure.input(VUnstarInputSchema).mutation(unstarHandler),
+  find: authedProcedure.input(VFindEmailInputSchema).query(findEmailHandler),
 });

@@ -3,5 +3,5 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     "*.handler.ts": "${capture}.schema.ts"
-  },
+  }
 }

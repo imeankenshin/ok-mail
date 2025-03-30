@@ -17,7 +17,7 @@ export const sendEmailHandler = async ({
   const encodedMessage = encodeMIMEMessage({
     to: input.to,
     subject: input.subject,
-    body: input.body
+    body: input.body,
   });
 
   const { data: message, error: sendEmailError } = await tryCatch(
@@ -26,7 +26,7 @@ export const sendEmailHandler = async ({
       requestBody: {
         raw: encodedMessage,
       },
-    })
+    }),
   );
   if (sendEmailError) {
     throw new TRPCError({

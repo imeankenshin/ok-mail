@@ -11,7 +11,7 @@ import type { Result } from "#shared/types/try-catch";
  */
 export async function getBimiLogoUrl(
   domain: string,
-  selector: string = "default"
+  selector: string = "default",
 ): Promise<Result<string | null, Error>> {
   if (!domain) {
     return { error: new TypeError("Domain is required"), data: null };
@@ -19,14 +19,18 @@ export async function getBimiLogoUrl(
 
   const bimiRecordName = `${selector}._bimi.${domain}`;
 
-  const { data: txtRecords, error } = await tryCatch(dns.resolveTxt(bimiRecordName));
+  const { data: txtRecords, error } = await tryCatch(
+    dns.resolveTxt(bimiRecordName),
+  );
 
   // ENODATA エラーは正常系として扱う（多くのドメインはBIMIレコードを持っていない）
   if (error) {
     // Node.jsのDNSエラーには code プロパティがある
     const nodeError = error as NodeJS.ErrnoException;
-    if (nodeError.code === 'ENODATA' || nodeError.code === 'ENOTFOUND') {
-      consola.debug(`No BIMI DNS record found for ${domain} (selector: ${selector}): ${nodeError.code}`);
+    if (nodeError.code === "ENODATA" || nodeError.code === "ENOTFOUND") {
+      consola.debug(
+        `No BIMI DNS record found for ${domain} (selector: ${selector}): ${nodeError.code}`,
+      );
       return { error: null, data: null };
     }
     return { error, data: null };
@@ -50,12 +54,12 @@ export async function getBimiLogoUrl(
           return { error: null, data: locationMatch[1] };
         }
         consola.warn(
-          `Invalid BIMI logo URL found for ${domain}: ${locationMatch[1]} (must be HTTPS)`
+          `Invalid BIMI logo URL found for ${domain}: ${locationMatch[1]} (must be HTTPS)`,
         );
       }
       // Found the BIMI record but no valid l= tag
       consola.debug(
-        `BIMI record found for ${domain}, but no valid logo URL (l= tag).`
+        `BIMI record found for ${domain}, but no valid logo URL (l= tag).`,
       );
       return { error: null, data: null };
     }

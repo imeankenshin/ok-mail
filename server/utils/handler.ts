@@ -20,12 +20,12 @@ class VerifiedEvent<T extends EventHandlerRequest> extends H3Event<T> {
 }
 
 type VerifiedEventHandler<T extends EventHandlerRequest, D> = (
-  event: VerifiedEvent<T>
+  event: VerifiedEvent<T>,
 ) => EventHandlerResponse<D>;
 
 export function defineVerifiedOnlyEventHandler<
   T extends EventHandlerRequest,
-  D
+  D,
 >(handler: VerifiedEventHandler<T, D>): EventHandler<T, D> {
   return defineEventHandler<T>(async (event) => {
     const session = await auth.api.getSession({
@@ -75,8 +75,8 @@ export function defineVerifiedOnlyEventHandler<
         });
       }
 
-      const {data: credentials, error} = await tryCatch(
-        oauth2Client.refreshAccessToken().then((res) => res.credentials)
+      const { data: credentials, error } = await tryCatch(
+        oauth2Client.refreshAccessToken().then((res) => res.credentials),
       );
 
       if (error) {
@@ -102,7 +102,7 @@ export function defineVerifiedOnlyEventHandler<
 function createVerifiedEvent<T extends EventHandlerRequest>(
   event: H3Event<T>,
   oauth2Client: OAuth2Client,
-  session: Awaited<ReturnType<typeof auth.api.getSession>>
+  session: Awaited<ReturnType<typeof auth.api.getSession>>,
 ): VerifiedEvent<T> {
   event.context.oAuth2Client = oauth2Client;
   event.context.session = session;

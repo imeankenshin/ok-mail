@@ -5,14 +5,21 @@ import { User, Trash2, Star } from "lucide-vue-next";
 const store = useDraftsStore();
 
 // 初回のメール取得
-await callOnce('drafts', store.initialize);
+await callOnce("drafts", store.initialize);
 </script>
 
 <template>
   <div>
     <div v-if="store.drafts.length">
-      <div v-for="draft in store.drafts" :key="draft.id" class="border-b last:border-0">
-        <NuxtLink :to="`/compose?draftId=${draft.id}`" class="block p-4 hover:bg-accent transition-colors">
+      <div
+        v-for="draft in store.drafts"
+        :key="draft.id"
+        class="border-b last:border-0"
+      >
+        <NuxtLink
+          :to="`/compose?draftId=${draft.id}`"
+          class="block p-4 transition-colors hover:bg-accent"
+        >
           <div class="flex items-center space-x-4">
             <UiAvatar>
               <UiAvatarFallback>
@@ -24,7 +31,12 @@ await callOnce('drafts', store.initialize);
               <p class="text-sm text-red-500">下書き</p>
             </div>
             <div class="flex items-center space-x-2">
-              <UiButton variant="ghost" size="icon" :title="'ゴミ箱に移動'" @click.prevent="store.trash(draft.id)">
+              <UiButton
+                variant="ghost"
+                size="icon"
+                :title="'ゴミ箱に移動'"
+                @click.prevent="store.trash(draft.id)"
+              >
                 <Trash2 class="h-4 w-4" />
               </UiButton>
               <UiButton variant="ghost" size="icon">
@@ -42,13 +54,18 @@ await callOnce('drafts', store.initialize);
           <UiSkeleton class="size-10 rounded-full" />
           <div class="flex-1">
             <UiSkeleton class="h-4 w-full max-w-sm" />
-            <UiSkeleton class="h-5 mt-1 w-full max-w-64" />
+            <UiSkeleton class="mt-1 h-5 w-full max-w-64" />
           </div>
         </div>
       </div>
     </div>
 
-    <UiButton v-if="store.nextPageToken" variant="outline" class="w-full" @click="store.fetchMore">
+    <UiButton
+      v-if="store.nextPageToken"
+      variant="outline"
+      class="w-full"
+      @click="store.fetchMore"
+    >
       もっと見る
     </UiButton>
   </div>

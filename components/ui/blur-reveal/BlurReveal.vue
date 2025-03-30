@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="container"
-    :class="props.class"
-  >
+  <div ref="container" :class="props.class">
     <Motion
       v-for="(child, index) in children"
       :key="index"
@@ -22,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import { Motion } from 'motion-v';
-import { ref, onMounted, watchEffect, useSlots } from 'vue';
+import { Motion } from "motion-v";
+import { ref, onMounted, watchEffect, useSlots } from "vue";
 
 interface Props {
   duration?: number;
@@ -36,7 +33,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   duration: 1,
   delay: 2,
-  blur: '20px',
+  blur: "20px",
   yOffset: 20,
 });
 

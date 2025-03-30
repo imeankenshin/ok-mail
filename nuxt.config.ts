@@ -1,19 +1,20 @@
-import { createRequire } from 'module'
-import path from 'path'
+import { createRequire } from "module";
+import path from "path";
 import "./env";
 
-const { resolve } = createRequire(import.meta.url)
+const { resolve } = createRequire(import.meta.url);
 
-const prismaClient = `prisma${path.sep}client`
+const prismaClient = `prisma${path.sep}client`;
 
-const prismaClientIndexBrowser = resolve('@prisma/client/index-browser').replace(`@${prismaClient}`, `.${prismaClient}`)
-
+const prismaClientIndexBrowser = resolve(
+  "@prisma/client/index-browser",
+).replace(`@${prismaClient}`, `.${prismaClient}`);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   build: {
-    transpile: ["trpc-nuxt"]
+    transpile: ["trpc-nuxt"],
   },
   devtools: { enabled: true },
   modules: [
@@ -28,14 +29,21 @@ export default defineNuxtConfig({
   eslint: {},
   css: ["@/assets/css/tailwind.css"],
   vite: {
-    resolve: { alias: { '.prisma/client/index-browser': path.relative(__dirname, prismaClientIndexBrowser) } },
+    resolve: {
+      alias: {
+        ".prisma/client/index-browser": path.relative(
+          __dirname,
+          prismaClientIndexBrowser,
+        ),
+      },
+    },
     optimizeDeps: {
-      include: ['vue']
+      include: ["vue"],
     },
     build: {
       commonjsOptions: {
-        esmExternals: true
-      }
-    }
+        esmExternals: true,
+      },
+    },
   },
 });

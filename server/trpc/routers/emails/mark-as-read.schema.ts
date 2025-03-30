@@ -1,4 +1,4 @@
-import type { InferOutput} from "valibot";
+import type { InferOutput } from "valibot";
 import { object, string } from "valibot";
 
 export const VMarkAsReadInputSchema = object({

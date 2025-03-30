@@ -6,7 +6,7 @@ import type { Result } from "#shared/types/try-catch";
  * @returns Result of the callback function
  */
 export async function tryCatch<T, E = Error>(
-  throwable: Promise<T>
+  throwable: Promise<T>,
 ): Promise<Result<T, E>> {
   try {
     const result = await throwable;

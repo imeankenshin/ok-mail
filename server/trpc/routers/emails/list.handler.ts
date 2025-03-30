@@ -9,13 +9,15 @@ import consola from "consola";
 const LIMIT = 10; // Number of emails per page
 
 // Helper function to extract domain from 'From' header
-function extractDomainFromFromHeader(fromHeader: string | undefined | null): string | null {
+function extractDomainFromFromHeader(
+  fromHeader: string | undefined | null,
+): string | null {
   if (!fromHeader) return null;
   // Match email address in <> or standalone
   const emailMatch = fromHeader.match(/<([^>]+)>/);
-  const address = emailMatch ? emailMatch[1] : fromHeader.split(' ').pop(); // Simplistic fallback
-  if (!address || !address.includes('@')) return null;
-  return address.split('@')[1];
+  const address = emailMatch ? emailMatch[1] : fromHeader.split(" ").pop(); // Simplistic fallback
+  if (!address || !address.includes("@")) return null;
+  return address.split("@")[1];
 }
 
 export const listEmailsHandler = async ({
@@ -35,7 +37,7 @@ export const listEmailsHandler = async ({
       maxResults: LIMIT,
       pageToken: input.pageToken,
       q: input.q,
-    })
+    }),
   );
 
   if (error) {
@@ -91,7 +93,7 @@ export const listEmailsHandler = async ({
           }
         }
         return emailData;
-      })
+      }),
     )
   ).filter((email): email is Email => email !== null);
 

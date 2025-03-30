@@ -9,7 +9,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     throw showError({
       statusCode: 500,
       message: "認証情報の取得に失敗しました",
-      cause: error.value
+      cause: error.value,
     });
   }
 

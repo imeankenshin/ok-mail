@@ -23,7 +23,7 @@ export const markAsReadHandler = async ({
       requestBody: {
         removeLabelIds: ["UNREAD"],
       },
-    })
+    }),
   );
 
   if (error) {

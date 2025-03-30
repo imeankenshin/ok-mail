@@ -8,5 +8,5 @@ export const env = createEnv({
     GOOGLE_REDIRECT_URI: pipe(string(), minLength(1), url()),
     GOOGLE_API_KEY: pipe(string(), minLength(1)),
     BETTER_AUTH_SECRET: pipe(string(), minLength(1)),
-  }
+  },
 });

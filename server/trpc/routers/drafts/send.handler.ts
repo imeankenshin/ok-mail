@@ -19,7 +19,7 @@ export const sendDraftHandler = async ({
       requestBody: {
         id: input.draftId,
       },
-    })
+    }),
   );
 
   if (error) {

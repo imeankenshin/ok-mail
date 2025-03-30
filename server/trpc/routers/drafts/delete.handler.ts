@@ -17,7 +17,7 @@ export const deleteDraftHandler = async ({
     gmail.users.drafts.delete({
       userId: "me",
       id: input.draftId,
-    })
+    }),
   );
 
   if (error) {

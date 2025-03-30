@@ -4,7 +4,13 @@ import { TRPCError } from "@trpc/server";
 import type { OAuth2Client } from "google-auth-library";
 import type { TStarInput } from "./star.schema";
 
-export const starHandler = async ({ input, ctx }: { input: TStarInput; ctx: { oauth2Client: OAuth2Client } }) => {
+export const starHandler = async ({
+  input,
+  ctx,
+}: {
+  input: TStarInput;
+  ctx: { oauth2Client: OAuth2Client };
+}) => {
   const gmail = google.gmail({
     version: "v1",
     auth: ctx.oauth2Client,
@@ -16,7 +22,7 @@ export const starHandler = async ({ input, ctx }: { input: TStarInput; ctx: { oa
       requestBody: {
         addLabelIds: ["STARRED"],
       },
-    })
+    }),
   );
 
   if (error) {
@@ -26,4 +32,4 @@ export const starHandler = async ({ input, ctx }: { input: TStarInput; ctx: { oa
       cause: error,
     });
   }
-}
+};
