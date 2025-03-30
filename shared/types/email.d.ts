@@ -7,6 +7,7 @@ export interface Email {
   date: string;
   isRead: boolean;
   isStarred: boolean;
+  bimiLogoUrl?: string;
 }
 
 export interface EmailListResponse {
