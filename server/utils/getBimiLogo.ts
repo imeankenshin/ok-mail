@@ -46,7 +46,7 @@ export async function getBimiLogoUrl(
       if (locationMatch && locationMatch[1]) {
         // Basic validation: should be https
         if (locationMatch[1].startsWith("https://")) {
-          consola.log(`BIMI logo found for ${domain}: ${locationMatch[1]}`);
+          consola.debug(`BIMI logo found for ${domain}: ${locationMatch[1]}`);
           return { error: null, data: locationMatch[1] };
         }
         consola.warn(
@@ -54,13 +54,13 @@ export async function getBimiLogoUrl(
         );
       }
       // Found the BIMI record but no valid l= tag
-      consola.log(
+      consola.debug(
         `BIMI record found for ${domain}, but no valid logo URL (l= tag).`
       );
       return { error: null, data: null };
     }
   }
   // No TXT record starting with v=BIMI1 found
-  consola.log(`No BIMI record found for ${domain} at ${bimiRecordName}`);
+  consola.debug(`No BIMI record found for ${domain} at ${bimiRecordName}`);
   return { error: null, data: null };
 }
