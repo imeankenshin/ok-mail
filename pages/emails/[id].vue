@@ -6,10 +6,12 @@ const emailId = route.params.id as ":id";
 const key = `email-${emailId}`;
 
 const { $trpc } = useNuxtApp();
-const email = useState<Awaited<ReturnType<typeof $trpc.emails.find.query>> | null>(key, () => null);
+const email = useState<Awaited<
+  ReturnType<typeof $trpc.emails.find.query>
+> | null>(key, () => null);
 
 const styleSheet = computed(() =>
-  email.value?.isHtml && email.value.styleSheet ? email.value.styleSheet : ""
+  email.value?.isHtml && email.value.styleSheet ? email.value.styleSheet : "",
 );
 
 const timeOutId = ref<ReturnType<typeof setTimeout> | null>(null);
@@ -102,7 +104,7 @@ watch(email, (email) => {
   if (!email?.isRead)
     timeOutId.value = setTimeout(async () => {
       await $trpc.emails.markAsRead.mutate({
-        id: emailId
+        id: emailId,
       });
     }, 2000);
 });
@@ -115,15 +117,15 @@ onBeforeUnmount(() => {
 
 await callOnce(key, async () => {
   const data = await $trpc.emails.find.query({
-    id: emailId
+    id: emailId,
   });
   email.value = data;
 });
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen">
-    <header class="border-b bg-background px-4 py-3 flex items-center">
+  <div class="flex min-h-screen flex-col">
+    <header class="flex items-center border-b bg-background px-4 py-3">
       <UiButton variant="ghost" size="icon" class="mr-4" as-child>
         <NuxtLink to="/">
           <ArrowLeft class="h-5 w-5" />
@@ -166,7 +168,11 @@ await callOnce(key, async () => {
           <UiCardContent>
             <div class="___body-wrapper">
               <!-- eslint-disable-next-line vue/no-v-html -->
-              <div class="___body" :lang="email.isHtml ? email.lang : undefined" v-html="email.body" />
+              <div
+                class="___body"
+                :lang="email.isHtml ? email.lang : undefined"
+                v-html="email.body"
+              />
             </div>
           </UiCardContent>
         </UiCard>

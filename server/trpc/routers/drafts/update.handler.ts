@@ -26,7 +26,7 @@ export const updateDraftHandler = async ({
           }),
         },
       },
-    })
+    }),
   );
 
   if (error) {

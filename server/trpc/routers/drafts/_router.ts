@@ -20,16 +20,10 @@ export const draftRouter = router({
   update: authedProcedure
     .input(VUpdateDraftInputSchema)
     .mutation(updateDraftHandler),
-  send: authedProcedure
-    .input(VSendDraftInputSchema)
-    .mutation(sendDraftHandler),
+  send: authedProcedure.input(VSendDraftInputSchema).mutation(sendDraftHandler),
   delete: authedProcedure
     .input(VDeleteDraftInputSchema)
     .mutation(deleteDraftHandler),
-  list: authedProcedure
-  .input(VListDraftsInputSchema)
-    .query(listDraftsHandler),
-  find: authedProcedure
-    .input(VFindDraftInputSchema)
-    .query(findDraftHandler),
+  list: authedProcedure.input(VListDraftsInputSchema).query(listDraftsHandler),
+  find: authedProcedure.input(VFindDraftInputSchema).query(findDraftHandler),
 });

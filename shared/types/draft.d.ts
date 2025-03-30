@@ -4,4 +4,4 @@ export type Draft = {
   from: string;
   to: string;
   date: string;
-}
+};

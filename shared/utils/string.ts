@@ -9,7 +9,11 @@ export function initialed(name: string): string {
   }
   // if there is 1 space, return the first char of each word
   if (name.includes(" ")) {
-    return name.split(" ").map((word) => word[0].toUpperCase()).slice(0, 2).join("");
+    return name
+      .split(" ")
+      .map((word) => word[0].toUpperCase())
+      .slice(0, 2)
+      .join("");
   }
   // else return the first 2 chars
   return name.slice(0, 2).toUpperCase();

@@ -8,31 +8,38 @@ const { $trpc } = useNuxtApp();
 const router = useRouter();
 const route = useRoute();
 const sending = ref(false);
-const isEdited = ref(false)
+const isEdited = ref(false);
 const draftId = ref<string | null>((route.query.draftId as string) || null);
 const draftStatus = ref<DraftStatus>("idle");
 
-const { data: draft } = useAsyncData(async () => {
-  return await $trpc.drafts.find.query({
-    draftId: draftId.value!
-  })
-}, {
-  immediate: !!draftId.value,
-  default: () => ({
-    to: [],
-    subject: "",
-    body: ""
-  })
-});
+const { data: draft } = useAsyncData(
+  async () => {
+    return await $trpc.drafts.find.query({
+      draftId: draftId.value!,
+    });
+  },
+  {
+    immediate: !!draftId.value,
+    default: () => ({
+      to: [],
+      subject: "",
+      body: "",
+    }),
+  },
+);
 
 // メールアドレスの配列を管理
 const tags = toRef(draft.value.to || []);
 // タグが変更されたときにメールの宛先を更新
-watch(tags, (newTags) => {
-  if (draft.value) {
-    draft.value.to = newTags.length > 0 ? newTags : [];
-  }
-}, { deep: true });
+watch(
+  tags,
+  (newTags) => {
+    if (draft.value) {
+      draft.value.to = newTags.length > 0 ? newTags : [];
+    }
+  },
+  { deep: true },
+);
 
 const debounceChangeDraftStatus = useDebounceFn(() => {
   draftStatus.value = "idle";
@@ -47,9 +54,7 @@ const saveDraft = async () => {
   draftStatus.value = "saving";
 
   if (!draftIdValue) {
-    const { data, error } = await tryCatch(
-      $trpc.drafts.create.mutate(payload)
-    );
+    const { data, error } = await tryCatch($trpc.drafts.create.mutate(payload));
 
     if (error) {
       draftStatus.value = "error";
@@ -61,8 +66,8 @@ const saveDraft = async () => {
     const { data, error } = await tryCatch(
       $trpc.drafts.update.mutate({
         ...payload,
-        draftId: draftIdValue
-      })
+        draftId: draftIdValue,
+      }),
     );
 
     if (error) {
@@ -78,7 +83,14 @@ const saveDraft = async () => {
 
 const debouncedSaveDraft = useDebounceFn(saveDraft, 1000);
 
-watch(draft, () => { isEdited.value = true; debouncedSaveDraft() }, { deep: true });
+watch(
+  draft,
+  () => {
+    isEdited.value = true;
+    debouncedSaveDraft();
+  },
+  { deep: true },
+);
 
 onBeforeUnmount(() => {
   if (!isEdited.value) return;
@@ -88,13 +100,15 @@ const sendEmail = async () => {
   const draftIdValue = draftId.value;
   sending.value = true;
   const { error } = await tryCatch<unknown>(
-    draftIdValue ? $trpc.drafts.send.mutate({
-      draftId: draftIdValue
-    }) : $trpc.emails.send.mutate({
-      to: draft.value.to,
-      subject: draft.value.subject,
-      body: draft.value.body
-    })
+    draftIdValue
+      ? $trpc.drafts.send.mutate({
+          draftId: draftIdValue,
+        })
+      : $trpc.emails.send.mutate({
+          to: draft.value.to,
+          subject: draft.value.subject,
+          body: draft.value.body,
+        }),
   );
 
   if (!error) {
@@ -106,7 +120,7 @@ const sendEmail = async () => {
 </script>
 
 <template>
-  <UiCard class="w-full max-w-2xl mx-auto">
+  <UiCard class="mx-auto w-full max-w-2xl">
     <UiCardHeader>
       <UiCardTitle>新規メール作成</UiCardTitle>
     </UiCardHeader>
@@ -119,21 +133,35 @@ const sendEmail = async () => {
               <UiTagsInputItemText>{{ tag }}</UiTagsInputItemText>
               <UiTagsInputItemDelete />
             </UiTagsInputItem>
-            <UiTagsInputInput placeholder="メールアドレスを入力してEnterキーを押すか、カンマで区切って複数入力" />
+            <UiTagsInputInput
+              placeholder="メールアドレスを入力してEnterキーを押すか、カンマで区切って複数入力"
+            />
           </UiTagsInput>
         </div>
 
         <div class="space-y-2">
           <label for="subject" class="text-sm font-medium">件名</label>
-          <UiInput id="subject" v-model="draft.subject" required type="text" placeholder="件名を入力" />
+          <UiInput
+            id="subject"
+            v-model="draft.subject"
+            required
+            type="text"
+            placeholder="件名を入力"
+          />
         </div>
 
         <div class="space-y-2">
           <label for="body" class="text-sm font-medium">本文</label>
-          <UiTextarea id="body" v-model="draft.body" required placeholder="本文を入力" rows="10" />
+          <UiTextarea
+            id="body"
+            v-model="draft.body"
+            required
+            placeholder="本文を入力"
+            rows="10"
+          />
         </div>
 
-        <div class="flex justify-between items-center">
+        <div class="flex items-center justify-between">
           <div class="text-sm text-gray-500">
             <span v-if="draftStatus === 'saving'" class="flex items-center">
               <Loader2 class="mr-1 h-3 w-3 animate-spin" />

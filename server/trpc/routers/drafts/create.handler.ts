@@ -21,11 +21,11 @@ export const createDraftHandler = async ({
           raw: encodeMIMEMessage({
             to: input.to,
             subject: input.subject,
-            body: input.body
-          })
-        }
-      }
-    })
+            body: input.body,
+          }),
+        },
+      },
+    }),
   );
 
   if (error) {

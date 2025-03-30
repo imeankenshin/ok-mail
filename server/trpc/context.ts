@@ -11,11 +11,11 @@ import type { H3Event } from "h3";
  * @link https://trpc.io/docs/context
  */
 export const createContext = async (event: H3Event) => {
-  const headers = new Headers(getHeaders(event) as Record<string, string>)
+  const headers = new Headers(getHeaders(event) as Record<string, string>);
   const { data: session, error } = await tryCatch(
     auth.api.getSession({
       headers,
-    })
+    }),
   );
 
   if (error) {
@@ -26,10 +26,11 @@ export const createContext = async (event: H3Event) => {
     });
   }
 
-  if (!session) return {
-    session: null,
-    oauth2Client: null,
-  }
+  if (!session)
+    return {
+      session: null,
+      oauth2Client: null,
+    };
 
   const oauth2Client = new google.auth.OAuth2({
     clientId: env.GOOGLE_CLIENT_ID,
@@ -41,7 +42,7 @@ export const createContext = async (event: H3Event) => {
   const { data: account, error: accountError } = await tryCatch(
     prisma.account.findFirst({
       where: { userId: session.session.userId },
-    })
+    }),
   );
 
   if (accountError) {
@@ -75,7 +76,7 @@ export const createContext = async (event: H3Event) => {
     }
 
     const { data: credentials, error: credentialsError } = await tryCatch(
-      oauth2Client.refreshAccessToken().then((res) => res.credentials)
+      oauth2Client.refreshAccessToken().then((res) => res.credentials),
     );
 
     if (credentialsError) {

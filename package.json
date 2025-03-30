@@ -10,6 +10,7 @@
     "preview": "nuxt preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {

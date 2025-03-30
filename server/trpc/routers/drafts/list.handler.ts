@@ -22,7 +22,7 @@ export const listDraftsHandler = async ({
       userId: "me",
       maxResults: 10, // 取得する下書きの最大数
       pageToken: input.pageToken ?? undefined,
-    })
+    }),
   );
 
   if (error) {
@@ -43,7 +43,7 @@ export const listDraftsHandler = async ({
           userId: "me",
           id: draftId,
           format: "full",
-        })
+        }),
       );
 
       if (error) {
@@ -58,22 +58,22 @@ export const listDraftsHandler = async ({
         id: draft.id!,
         subject:
           draftDetails.data.message?.payload?.headers?.find(
-            (header) => header.name === "Subject"
+            (header) => header.name === "Subject",
           )?.value || "(件名なし)",
         date:
           draftDetails.data.message?.payload?.headers?.find(
-            (header) => header.name === "Date"
+            (header) => header.name === "Date",
           )?.value || "(日付なし)",
         from:
           draftDetails.data.message?.payload?.headers?.find(
-            (header) => header.name === "From"
+            (header) => header.name === "From",
           )?.value || "(送信者なし)",
         to:
           draftDetails.data.message?.payload?.headers?.find(
-            (header) => header.name === "To"
+            (header) => header.name === "To",
           )?.value || "(宛先なし)",
       } satisfies Draft;
-    })
+    }),
   );
 
   return {

@@ -5,6 +5,4 @@ export const VUnstarInputSchema = object({
   id: string(),
 });
 
-export type TUnstarInput = InferOutput<
-  typeof VUnstarInputSchema
->;
+export type TUnstarInput = InferOutput<typeof VUnstarInputSchema>;

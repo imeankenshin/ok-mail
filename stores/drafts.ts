@@ -7,7 +7,6 @@ export const useDraftsStore = defineStore("drafts", () => {
   const { $trpc } = useNuxtApp();
   const { start, isPending } = useAsyncFunction();
 
-
   const initialize = async () => {
     await start(async () => {
       const response = await $trpc.drafts.list.query({});
@@ -39,7 +38,7 @@ export const useDraftsStore = defineStore("drafts", () => {
     const { error } = await tryCatch(
       $trpc.drafts.delete.mutate({
         draftId,
-      })
+      }),
     );
 
     if (error) {

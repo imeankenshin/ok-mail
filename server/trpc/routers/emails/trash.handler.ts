@@ -20,7 +20,7 @@ export const trashEmailHandler = async ({
     gmail.users.messages.trash({
       userId: "me",
       id: input.id,
-    })
+    }),
   );
 
   if (error) {

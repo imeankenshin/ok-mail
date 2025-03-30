@@ -47,7 +47,7 @@ export const findEmailHandler = async ({
       userId: "me",
       id: input.id,
       format: "full",
-    })
+    }),
   );
 
   if (error) {
@@ -66,7 +66,7 @@ function getContent(message: gmail_v1.Schema$Message): string {
   if (message?.payload?.parts) {
     // HTMLとプレーンテキストの両方を探す
     const parts = message.payload.parts.filter(
-      (part) => part.mimeType === "text/html" || part.mimeType === "text/plain"
+      (part) => part.mimeType === "text/html" || part.mimeType === "text/plain",
     );
 
     // パートをMIMEタイプでソート（HTMLを優先）
@@ -87,7 +87,7 @@ function getContent(message: gmail_v1.Schema$Message): string {
 }
 
 function createGetEmailResponce(
-  message: gmail_v1.Schema$Message
+  message: gmail_v1.Schema$Message,
 ): GetEmailResponce {
   const headers = message?.payload?.headers || [];
   const content = getContent(message);
