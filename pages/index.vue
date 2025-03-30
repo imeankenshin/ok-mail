@@ -2,6 +2,7 @@
 import { User, Trash2, Star } from "lucide-vue-next";
 import type { Email } from "#shared/types/email";
 import { tryCatch } from "#shared/utils/try-catch";
+import { initialed } from "#shared/utils/string";
 
 definePageMeta({
   key: route => route.query.q as string
@@ -81,7 +82,8 @@ await callOnce(`emails-${q.value}`, async () => {
               <UiAvatarImage :src="email.bimiLogoUrl ?? ''" :alt="email.from ?? 'Sender Logo'" />
               <!-- Fallback icon -->
               <UiAvatarFallback>
-                <User class="h-4 w-4" />
+                <span v-if="email.from" class="text-sm">{{ initialed(email.from) }}</span>
+                <User v-else class="h-4 w-4" />
               </UiAvatarFallback>
             </UiAvatar>
             <div class="flex-1 space-y-1">
