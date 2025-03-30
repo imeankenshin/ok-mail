@@ -4,7 +4,6 @@ import type { Email } from "#shared/types/email";
 import { tryCatch } from "#shared/utils/try-catch";
 import type { OAuth2Client } from "google-auth-library";
 import type { TListEmailsInput } from "./list.schema";
-import { getBimiLogoUrl } from '../../../utils/getBimiLogo'; // Import BIMI util
 import consola from "consola";
 
 const LIMIT = 10; // Number of emails per page
