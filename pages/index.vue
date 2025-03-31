@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { User, Trash2, Star } from "lucide-vue-next";
+import { Trash2, Star } from "lucide-vue-next";
 import type { Email } from "#shared/types/email";
 import { tryCatch } from "#shared/utils/try-catch";
 import { initialed } from "#shared/utils/string";
@@ -89,19 +89,18 @@ await callOnce(`emails-${q.value}`, async () => {
               <!-- Display BIMI logo if available -->
               <UiAvatarImage
                 :src="email.bimiLogoUrl ?? ''"
-                :alt="email.from ?? 'Sender Logo'"
+                :alt="email.fromName ?? 'Sender Logo'"
               />
               <!-- Fallback icon -->
               <UiAvatarFallback>
-                <span v-if="email.from" class="text-sm">{{
-                  initialed(email.from)
+                <span class="text-sm">{{
+                  initialed(email.fromName || email.fromEmail)
                 }}</span>
-                <User v-else class="h-4 w-4" />
               </UiAvatarFallback>
             </UiAvatar>
             <div class="flex-1 space-y-1">
               <p class="font-medium leading-none">{{ email.subject }}</p>
-              <p class="text-sm text-muted-foreground">{{ email.from }}</p>
+              <p class="text-sm text-muted-foreground">{{ email.fromName || email.fromEmail }}</p>
             </div>
             <div class="flex items-center space-x-2">
               <UiButton

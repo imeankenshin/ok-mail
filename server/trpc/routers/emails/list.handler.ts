@@ -48,6 +48,7 @@ export const listEmailsHandler = async ({
     });
   }
 
+
   const messages = messageList.data.messages || [];
   const emails = (
     await Promise.all(
@@ -75,7 +76,8 @@ export const listEmailsHandler = async ({
           id: email.data.id,
           threadId: email.data.threadId || "",
           subject: subject || "(件名なし)",
-          from: from || "不明",
+          fromName: extractFrom(from || "不明").name,
+          fromEmail: extractFrom(from || "不明").email,
           snippet: email.data.snippet || "",
           date: date || "",
           isRead,
