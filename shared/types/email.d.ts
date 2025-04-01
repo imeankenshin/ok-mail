@@ -1,7 +1,8 @@
 export interface Email {
   id: string;
   threadId: string;
-  from: string;
+  fromName?: string;
+  fromEmail: string;
   subject: string;
   snippet: string;
   date: string;

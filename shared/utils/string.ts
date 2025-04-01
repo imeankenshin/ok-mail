@@ -16,5 +16,5 @@ export function initialed(name: string): string {
       .join("");
   }
   // else return the first 2 chars
-  return name.slice(0, 2).toUpperCase();
+  return name.split("@")[0].slice(0, 2).toUpperCase();
 }
