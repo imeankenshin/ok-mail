@@ -5,6 +5,22 @@ const emit = defineEmits(["logout"]);
 const signOut = () => {
   emit("logout");
 };
+
+type CustomInbox = {
+  name: string;
+  query: string;
+};
+
+const customInboxes = useState<CustomInbox[]>("customInboxes", () => []);
+const createCustomInboxDialog = useState<boolean>("createCustomInboxDialog", () => false);
+
+const createCustomInbox = async ({ name, query }: CustomInbox) => {
+  customInboxes.value.push({
+    name,
+    query,
+  });
+  createCustomInboxDialog.value = false;
+};
 </script>
 
 <template>
@@ -70,6 +86,28 @@ const signOut = () => {
               </UiDialog>
             </UiSidebarMenuItem>
           </UiSidebarMenu>
+        </UiSidebarGroupContent>
+      </UiSidebarGroup>
+      <UiSidebarGroup>
+        <UiSidebarGroupLabel>カスタム</UiSidebarGroupLabel>
+        <UiDialog v-model:open="createCustomInboxDialog">
+          <UiDialogTrigger as-child>
+            <UiSidebarGroupAction title="カスタムトレイを追加">
+              <Icon mode="svg" name="lucide:plus" class="h-4 w-4" />
+              <span class="sr-only">カスタムトレイを追加</span>
+            </UiSidebarGroupAction>
+          </UiDialogTrigger>
+          <AppCreateCustomInboxDialogContent @submit="createCustomInbox" />
+        </UiDialog>
+        <UiSidebarGroupContent>
+          <UiSidebarMenuItem v-for="(customInbox, index) in customInboxes" :key="index">
+            <UiSidebarMenuButton tooltip="カスタムトレイ" as-child>
+              <NuxtLink :to="`/?q=${customInbox.query}`">
+                <Icon mode="svg" name="lucide:folder" class="mr-2 h-4 w-4" />
+                {{ customInbox.name }}
+              </NuxtLink>
+            </UiSidebarMenuButton>
+          </UiSidebarMenuItem>
         </UiSidebarGroupContent>
       </UiSidebarGroup>
     </UiSidebarContent>
