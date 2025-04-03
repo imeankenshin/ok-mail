@@ -11,7 +11,7 @@ type CustomInbox = {
   query: string;
 };
 
-const customInboxes = useState<CustomInbox[]>("customInboxes", () => []);
+const customInboxes = useLocalStorage<CustomInbox[]>("customInboxes", () => []);
 const createCustomInboxDialog = useState<boolean>("createCustomInboxDialog", () => false);
 
 const createCustomInbox = async ({ name, query }: CustomInbox) => {
@@ -100,13 +100,16 @@ const createCustomInbox = async ({ name, query }: CustomInbox) => {
           <AppCreateCustomInboxDialogContent @submit="createCustomInbox" />
         </UiDialog>
         <UiSidebarGroupContent>
-          <UiSidebarMenuItem v-for="(customInbox, index) in customInboxes" :key="index">
-            <UiSidebarMenuButton tooltip="カスタムトレイ" as-child>
+          <UiSidebarMenuItem v-for="(customInbox, index) in customInboxes" :key="index" class="group">
+            <UiSidebarMenuButton :title="customInbox.name" as-child>
               <NuxtLink :to="`/?q=${customInbox.query}`">
                 <Icon mode="svg" name="lucide:folder" class="mr-2 h-4 w-4" />
-                {{ customInbox.name }}
+                <span>{{ customInbox.name }}</span>
               </NuxtLink>
             </UiSidebarMenuButton>
+            <UiSidebarMenuAction show-on-hover title="カスタムトレイを削除" size="icon" variant="ghost" @click="customInboxes.splice(index, 1)">
+              <Icon mode="svg" name="lucide:trash" class="h-4 w-4" />
+            </UiSidebarMenuAction>
           </UiSidebarMenuItem>
         </UiSidebarGroupContent>
       </UiSidebarGroup>
