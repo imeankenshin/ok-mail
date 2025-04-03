@@ -1,4 +1,6 @@
 <script setup lang="ts">
+//TODO: Make it able to add icon. I will add the feature while redesigning the app.
+
 const emit = defineEmits<{
   (e: "submit", { name, query }: { name: string; query: string }): Promise<void>;
 }>();
