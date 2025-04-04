@@ -1,16 +1,16 @@
 <script setup lang="ts">
-//TODO: Make it able to add icon. I will add the feature while redesigning the app.
-
 const emit = defineEmits<{
-  (e: "submit", { name, query }: { name: string; query: string }): Promise<void>;
+  (e: "submit", { name, icon, query }: { name: string; icon: string; query: string }): Promise<void>;
 }>();
 
 const name = ref("");
+const icon = ref("");
 const query = ref("");
 
 const handleSubmit = async () => {
-  await emit('submit', { name: name.value, query: query.value });
+  await emit('submit', { name: name.value, icon: icon.value, query: query.value });
   name.value = "";
+  icon.value = "";
   query.value = "";
 };
 
@@ -25,7 +25,9 @@ const handleSubmit = async () => {
       </UiDialogDescription>
     </UiDialogHeader>
     <form id="create-custom-inbox-form" class="space-y-4" @submit.prevent="handleSubmit">
+      <Icon mode="svg" :name="`material-symbols:${icon}`" class="mr-2 h-4 w-4" />
       <UiInput v-model="name" type="text" placeholder="カスタムトレイの名前" />
+      <UiInput v-model="icon" type="text" placeholder="カスタムトレイのアイコン" />
       <UiInput v-model="query" type="text" placeholder="カスタムトレイの検索条件" />
     </form>
     <UiDialogFooter>

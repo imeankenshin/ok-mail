@@ -9,15 +9,17 @@ const signOut = () => {
 type CustomInbox = {
   name: string;
   query: string;
+  icon: string;
 };
 
 const customInboxes = useLocalStorage<CustomInbox[]>("customInboxes", () => []);
 const createCustomInboxDialog = useState<boolean>("createCustomInboxDialog", () => false);
 
-const createCustomInbox = async ({ name, query }: CustomInbox) => {
+const createCustomInbox = async ({ name, query, icon }: CustomInbox) => {
   customInboxes.value.push({
     name,
     query,
+    icon,
   });
   createCustomInboxDialog.value = false;
 };
@@ -103,7 +105,7 @@ const createCustomInbox = async ({ name, query }: CustomInbox) => {
           <UiSidebarMenuItem v-for="(customInbox, index) in customInboxes" :key="index" class="group">
             <UiSidebarMenuButton :title="customInbox.name" as-child>
               <NuxtLink :to="`/?q=${customInbox.query}`">
-                <Icon mode="svg" name="lucide:folder" class="mr-2 h-4 w-4" />
+                <Icon mode="svg" :name="`material-symbols:${customInbox.icon}`" class="mr-2 h-4 w-4" />
                 <span>{{ customInbox.name }}</span>
               </NuxtLink>
             </UiSidebarMenuButton>
