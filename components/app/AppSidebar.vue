@@ -5,6 +5,24 @@ const emit = defineEmits(["logout"]);
 const signOut = () => {
   emit("logout");
 };
+
+type CustomInbox = {
+  name: string;
+  query: string;
+  icon: string;
+};
+
+const customInboxes = useLocalStorage<CustomInbox[]>("customInboxes", () => []);
+const createCustomInboxDialog = useState<boolean>("createCustomInboxDialog", () => false);
+
+const createCustomInbox = async ({ name, query, icon }: CustomInbox) => {
+  customInboxes.value.push({
+    name,
+    query,
+    icon,
+  });
+  createCustomInboxDialog.value = false;
+};
 </script>
 
 <template>
@@ -70,6 +88,31 @@ const signOut = () => {
               </UiDialog>
             </UiSidebarMenuItem>
           </UiSidebarMenu>
+        </UiSidebarGroupContent>
+      </UiSidebarGroup>
+      <UiSidebarGroup>
+        <UiSidebarGroupLabel>カスタム</UiSidebarGroupLabel>
+        <UiDialog v-model:open="createCustomInboxDialog">
+          <UiDialogTrigger as-child>
+            <UiSidebarGroupAction title="カスタムトレイを追加">
+              <Icon mode="svg" name="lucide:plus" class="h-4 w-4" />
+              <span class="sr-only">カスタムトレイを追加</span>
+            </UiSidebarGroupAction>
+          </UiDialogTrigger>
+          <AppCreateCustomInboxDialogContent @submit="createCustomInbox" />
+        </UiDialog>
+        <UiSidebarGroupContent>
+          <UiSidebarMenuItem v-for="(customInbox, index) in customInboxes" :key="index" class="group">
+            <UiSidebarMenuButton :title="customInbox.name" as-child>
+              <NuxtLink :to="`/?q=${customInbox.query}`">
+                <Icon mode="svg" :name="`material-symbols:${customInbox.icon}`" class="mr-2 h-4 w-4" />
+                <span>{{ customInbox.name }}</span>
+              </NuxtLink>
+            </UiSidebarMenuButton>
+            <UiSidebarMenuAction show-on-hover title="カスタムトレイを削除" size="icon" variant="ghost" @click="customInboxes.splice(index, 1)">
+              <Icon mode="svg" name="lucide:trash" class="h-4 w-4" />
+            </UiSidebarMenuAction>
+          </UiSidebarMenuItem>
         </UiSidebarGroupContent>
       </UiSidebarGroup>
     </UiSidebarContent>
